@@ -1,0 +1,525 @@
+<?xml version="1.0" ?>
+<robot name="create3_urdf_assem" xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+<xacro:include filename="$(find create3_urdf_assem_description)/urdf/materials.xacro" />
+<xacro:include filename="$(find create3_urdf_assem_description)/urdf/create3_urdf_assem.trans" />
+<link name="base_link">
+  <inertial>
+    <origin xyz="-0.047759462525092 0.000298414776851475 0.0707624012399248" rpy="0 0 0"/>
+    <mass value="34197.0194848885"/>
+    <inertia ixx="38.5166165528495" iyy="134.298873996405" izz="159.386738313802" ixy="16.1193385855925" iyz="2.58281079312019" ixz="-4.18501443541008"/>
+  </inertial>
+  <visual>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="package://create3_urdf_assem_description/meshes/base_link.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+    <material name="steel_satin"/>
+  </visual>
+  <collision>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="package://create3_urdf_assem_description/meshes/base_link.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+  </collision>
+</link>
+
+<link name="Support_large_v2_1">
+  <inertial>
+    <origin xyz="-0.0043839155707729865 0.014999999999986337 0.009761679303239276" rpy="0 0 0"/>
+    <mass value="0.0120098364716188"/>
+    <inertia ixx="7.78013854887147e-06" iyy="1.82190318361112e-06" izz="6.77844060306603e-06" ixy="-1.410252565540843e-20" iyz="-1.411723263616061e-18" ixz="3.57282258005255e-10"/>
+  </inertial>
+  <visual>
+    <origin xyz="-0.107763 0.015 -0.0936" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="package://create3_urdf_assem_description/meshes/Support_large_v2_1.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+    <material name="aluminum_polished"/>
+  </visual>
+  <collision>
+    <origin xyz="-0.107763 0.015 -0.0936" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="package://create3_urdf_assem_description/meshes/Support_large_v2_1.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+  </collision>
+</link>
+
+<link name="RDS3225_-_for_URDF_v4_1">
+  <inertial>
+    <origin xyz="-5.542427802540661e-07 0.026068670975493737 0.012331245210128877" rpy="0 0 0"/>
+    <mass value="0.0791893057217848"/>
+    <inertia ixx="2.82106812690113e-05" iyy="1.58164077691345e-05" izz="1.74398753985521e-05" ixy="2.415999728607878e-11" iyz="4.12347903638351e-07" ixz="-5.356776610829228e-11"/>
+  </inertial>
+  <visual>
+    <origin xyz="-0.103376 0.0265 -0.1205" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="package://create3_urdf_assem_description/meshes/RDS3225_-_for_URDF_v4_1.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+    <material name="aluminum_anodized_glossy_grey"/>
+  </visual>
+  <collision>
+    <origin xyz="-0.103376 0.0265 -0.1205" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="package://create3_urdf_assem_description/meshes/RDS3225_-_for_URDF_v4_1.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+  </collision>
+</link>
+
+<link name="ArmLink_v3_1">
+  <inertial>
+    <origin xyz="-0.0018531703965943142 0.0003540965645935584 0.032021608880066554" rpy="0 0 0"/>
+    <mass value="0.0389779069771219"/>
+    <inertia ixx="2.99541900814009e-05" iyy="2.38388727478328e-05" izz="1.22745171835179e-05" ixy="-8.71277974867326e-10" iyz="-2.26928593669882e-07" ixz="-4.22491135078275e-09"/>
+  </inertial>
+  <visual>
+    <origin xyz="-0.103376 0.00075 -0.158426" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="package://create3_urdf_assem_description/meshes/ArmLink_v3_1.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+    <material name="nylon_12_with_formlabs_fuse_1_3d_printer"/>
+  </visual>
+  <collision>
+    <origin xyz="-0.103376 0.00075 -0.158426" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="package://create3_urdf_assem_description/meshes/ArmLink_v3_1.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+  </collision>
+</link>
+
+<link name="Support_large_v2_2">
+  <inertial>
+    <origin xyz="3.084429226987706e-06 -1.356261023627292e-14 0.009761205723497146" rpy="0 0 0"/>
+    <mass value="0.0120098364716188"/>
+    <inertia ixx="7.78013854887147e-06" iyy="1.82190318361107e-06" izz="6.77844060306595e-06" ixy="2.305517803307799e-20" iyz="-1.436276710967675e-18" ixz="3.5728225803236e-10"/>
+  </inertial>
+  <visual>
+    <origin xyz="-0.103376 5e-05 -0.221926" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="package://create3_urdf_assem_description/meshes/Support_large_v2_2.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+    <material name="aluminum_polished"/>
+  </visual>
+  <collision>
+    <origin xyz="-0.103376 5e-05 -0.221926" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="package://create3_urdf_assem_description/meshes/Support_large_v2_2.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+  </collision>
+</link>
+
+<link name="RDS3225_-_for_URDF_v4_2">
+  <inertial>
+    <origin xyz="-5.54242779934877e-07 0.026068670975493837 0.012330771630386927" rpy="0 0 0"/>
+    <mass value="0.0791893057217848"/>
+    <inertia ixx="2.82106812690098e-05" iyy="1.58164077691337e-05" izz="1.74398753985519e-05" ixy="2.415999728057306e-11" iyz="4.12347903638358e-07" ixz="-5.356776567461141e-11"/>
+  </inertial>
+  <visual>
+    <origin xyz="-0.103376 0.02655 -0.248826" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="package://create3_urdf_assem_description/meshes/RDS3225_-_for_URDF_v4_2.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+    <material name="aluminum_anodized_glossy_grey"/>
+  </visual>
+  <collision>
+    <origin xyz="-0.103376 0.02655 -0.248826" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="package://create3_urdf_assem_description/meshes/RDS3225_-_for_URDF_v4_2.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+  </collision>
+</link>
+
+<link name="ArmLink_v3_2">
+  <inertial>
+    <origin xyz="-0.0018531703965940366 0.00035409656459368645 0.032022135300324495" rpy="0 0 0"/>
+    <mass value="0.0389779069771219"/>
+    <inertia ixx="2.99541900814016e-05" iyy="2.38388727478315e-05" izz="1.22745171835179e-05" ixy="-8.71277975441614e-10" iyz="-2.26928593670256e-07" ixz="-4.22491135067433e-09"/>
+  </inertial>
+  <visual>
+    <origin xyz="-0.103376 0.0008 -0.286751" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="package://create3_urdf_assem_description/meshes/ArmLink_v3_2.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+    <material name="nylon_12_with_formlabs_fuse_1_3d_printer"/>
+  </visual>
+  <collision>
+    <origin xyz="-0.103376 0.0008 -0.286751" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="package://create3_urdf_assem_description/meshes/ArmLink_v3_2.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+  </collision>
+</link>
+
+<link name="Support_large_v2_3">
+  <inertial>
+    <origin xyz="3.0844292272236284e-06 -1.3419875020265204e-14 0.00976173214375503" rpy="0 0 0"/>
+    <mass value="0.0120098364716188"/>
+    <inertia ixx="7.78013854887179e-06" iyy="1.82190318361161e-06" izz="6.77844060306598e-06" ixy="1.964057646445909e-20" iyz="-1.434556175293564e-18" ixz="3.5728225797815e-10"/>
+  </inertial>
+  <visual>
+    <origin xyz="-0.103376 0.0001 -0.350251" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="package://create3_urdf_assem_description/meshes/Support_large_v2_3.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+    <material name="aluminum_polished"/>
+  </visual>
+  <collision>
+    <origin xyz="-0.103376 0.0001 -0.350251" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="package://create3_urdf_assem_description/meshes/Support_large_v2_3.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+  </collision>
+</link>
+
+<link name="RDS3225_-_for_URDF_v4_3">
+  <inertial>
+    <origin xyz="-5.542427796434435e-07 0.026068670975494024 0.012331298050644979" rpy="0 0 0"/>
+    <mass value="0.0791893057217848"/>
+    <inertia ixx="2.82106812690142e-05" iyy="1.58164077691363e-05" izz="1.74398753985517e-05" ixy="2.415999729243152e-11" iyz="4.12347903638351e-07" ixz="-5.356776567461141e-11"/>
+  </inertial>
+  <visual>
+    <origin xyz="-0.103376 0.0266 -0.377151" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="package://create3_urdf_assem_description/meshes/RDS3225_-_for_URDF_v4_3.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+    <material name="aluminum_anodized_glossy_grey"/>
+  </visual>
+  <collision>
+    <origin xyz="-0.103376 0.0266 -0.377151" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="package://create3_urdf_assem_description/meshes/RDS3225_-_for_URDF_v4_3.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+  </collision>
+</link>
+
+<link name="Base_v8_1">
+  <inertial>
+    <origin xyz="0.00038574078903641507 0.0027759063540529288 0.019180667613296787" rpy="0 0 0"/>
+    <mass value="0.172135511489978"/>
+    <inertia ixx="7.43707221080026e-05" iyy="7.65171561616304e-05" izz="0.000100049270469718" ixy="1.11277277933266e-07" iyz="2.44198108194068e-08" ixz="-5.13466019367876e-06"/>
+  </inertial>
+  <visual>
+    <origin xyz="-0.103376 0.00085 -0.415077" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="package://create3_urdf_assem_description/meshes/Base_v8_1.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+    <material name="aluminum_satin"/>
+  </visual>
+  <collision>
+    <origin xyz="-0.103376 0.00085 -0.415077" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="package://create3_urdf_assem_description/meshes/Base_v8_1.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+  </collision>
+</link>
+
+<link name="DriverArm_v2_1">
+  <inertial>
+    <origin xyz="0.001828474821047421 1.3398461184092186e-06 0.02058562434802791" rpy="0 0 0"/>
+    <mass value="0.00894442654078101"/>
+    <inertia ixx="3.72210504394582e-06" iyy="3.87544643711511e-06" izz="4.78096502262119e-07" ixy="-9.003251562586024e-12" iyz="-2.63898014125051e-10" ixz="-7.3227545485232e-08"/>
+  </inertial>
+  <visual>
+    <origin xyz="-0.129683 -0.01155 -0.438077" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="package://create3_urdf_assem_description/meshes/DriverArm_v2_1.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+    <material name="aluminum_satin"/>
+  </visual>
+  <collision>
+    <origin xyz="-0.129683 -0.01155 -0.438077" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="package://create3_urdf_assem_description/meshes/DriverArm_v2_1.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+  </collision>
+</link>
+
+<link name="DrivenArm_v2_1">
+  <inertial>
+    <origin xyz="0.001867586153700418 -1.0280936206530367e-09 0.0215292856714408" rpy="0 0 0"/>
+    <mass value="0.00854038789073064"/>
+    <inertia ixx="3.53704128751363e-06" iyy="3.70293575717505e-06" izz="4.60395655026136e-07" ixy="-8.090147204497383e-16" iyz="1.565001993557476e-13" ixz="-6.60995881884537e-08"/>
+  </inertial>
+  <visual>
+    <origin xyz="-0.129294 0.01285 -0.438127" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="package://create3_urdf_assem_description/meshes/DrivenArm_v2_1.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+    <material name="aluminum_satin"/>
+  </visual>
+  <collision>
+    <origin xyz="-0.129294 0.01285 -0.438127" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="package://create3_urdf_assem_description/meshes/DrivenArm_v2_1.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+  </collision>
+</link>
+
+<link name="FrontArmLeft_v2_1">
+  <inertial>
+    <origin xyz="0.002212929708058642 -3.802814926151532e-07 0.03526460296004863" rpy="0 0 0"/>
+    <mass value="0.00440333324799871"/>
+    <inertia ixx="8.07103574171396e-07" iyy="1.10375934229577e-06" izz="3.21260210005004e-07" ixy="-1.591343324424370e-12" iyz="-3.303251162184440e-11" ixz="-2.29806381505651e-08"/>
+  </inertial>
+  <visual>
+    <origin xyz="-0.129294 0.005196 -0.457429" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="package://create3_urdf_assem_description/meshes/FrontArmLeft_v2_1.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+    <material name="aluminum_satin"/>
+  </visual>
+  <collision>
+    <origin xyz="-0.129294 0.005196 -0.457429" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="package://create3_urdf_assem_description/meshes/FrontArmLeft_v2_1.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+  </collision>
+</link>
+
+<link name="FrontArmRight_v2_1">
+  <inertial>
+    <origin xyz="0.002212929708103717 5.34053529570918e-07 0.03526460296002454" rpy="0 0 0"/>
+    <mass value="0.0044033332479868"/>
+    <inertia ixx="8.0710360417474e-07" iyy="1.10375934229165e-06" izz="3.21260240005976e-07" ixy="1.648360662866172e-12" iyz="3.289259880601429e-11" ixz="-2.29806381508903e-08"/>
+  </inertial>
+  <visual>
+    <origin xyz="-0.129294 -0.0039 -0.457429" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="package://create3_urdf_assem_description/meshes/FrontArmRight_v2_1.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+    <material name="aluminum_satin"/>
+  </visual>
+  <collision>
+    <origin xyz="-0.129294 -0.0039 -0.457429" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="package://create3_urdf_assem_description/meshes/FrontArmRight_v2_1.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+  </collision>
+</link>
+
+<link name="LeftPad_v2_1">
+  <inertial>
+    <origin xyz="-0.015999952624356967 -0.005420795704652397 0.00898870884090086" rpy="0 0 0"/>
+    <mass value="0.0152834385878526"/>
+    <inertia ixx="3.79296682397057e-06" iyy="5.38017343292355e-06" izz="2.59536641117726e-06" ixy="1.039118308543072e-12" iyz="-7.70848043956857e-07" ixz="-4.601451815064439e-12"/>
+  </inertial>
+  <visual>
+    <origin xyz="-0.146794 0.005196 -0.500014" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="package://create3_urdf_assem_description/meshes/LeftPad_v2_1.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+    <material name="aluminum_satin"/>
+  </visual>
+  <collision>
+    <origin xyz="-0.146794 0.005196 -0.500014" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="package://create3_urdf_assem_description/meshes/LeftPad_v2_1.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+  </collision>
+</link>
+
+<link name="RightPad_v2_1">
+  <inertial>
+    <origin xyz="-0.015999968476965193 0.005420948882587669 0.008988708845328097" rpy="0 0 0"/>
+    <mass value="0.0152834381646124"/>
+    <inertia ixx="3.79296716122249e-06" iyy="5.38017329065194e-06" izz="2.59536675225577e-06" ixy="-6.460540144580338e-13" iyz="7.70846827245284e-07" ixz="-5.295866176147079e-12"/>
+  </inertial>
+  <visual>
+    <origin xyz="-0.146794 -0.0039 -0.500014" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="package://create3_urdf_assem_description/meshes/RightPad_v2_1.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+    <material name="aluminum_satin"/>
+  </visual>
+  <collision>
+    <origin xyz="-0.146794 -0.0039 -0.500014" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="package://create3_urdf_assem_description/meshes/RightPad_v2_1.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+  </collision>
+</link>
+
+<link name="CameraMount_v12_1">
+  <inertial>
+    <origin xyz="0.0026858110147457443 -4.0227258329111235e-05 0.053293999708824806" rpy="0 0 0"/>
+    <mass value="0.220989510049452"/>
+    <inertia ixx="0.0014219726214152" iyy="0.00117223355803652" izz="0.0025725351843576" ixy="2.9500192089978e-07" iyz="3.97299317211386e-07" ixz="5.67612546634514e-06"/>
+  </inertial>
+  <visual>
+    <origin xyz="-0.012 -0.0 0.0" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="package://create3_urdf_assem_description/meshes/CameraMount_v12_1.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+    <material name="nylon_12_with_formlabs_fuse_1_3d_printer"/>
+  </visual>
+  <collision>
+    <origin xyz="-0.012 -0.0 0.0" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="package://create3_urdf_assem_description/meshes/CameraMount_v12_1.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+  </collision>
+</link>
+
+<link name="Basket_v9_1">
+  <inertial>
+    <origin xyz="0.008876416742024947 1.985880972269963e-07 -0.03345174568262277" rpy="0 0 0"/>
+    <mass value="3.79642775956461"/>
+    <inertia ixx="0.00610864474186752" iyy="0.00572267914245234" izz="0.0102750763232208" ixy="1.2088471233449e-07" iyz="1.78105698347325e-08" ixz="0.00029379442314695"/>
+  </inertial>
+  <visual>
+    <origin xyz="0.06 -0.0 -0.107887" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="package://create3_urdf_assem_description/meshes/Basket_v9_1.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+    <material name="nylon_12_with_formlabs_fuse_1_3d_printer"/>
+  </visual>
+  <collision>
+    <origin xyz="0.06 -0.0 -0.107887" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="package://create3_urdf_assem_description/meshes/Basket_v9_1.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+  </collision>
+</link>
+
+<link name="ArmAssem-LowTorque_v22_1">
+  <inertial>
+    <origin xyz="0.024474509498812844 0.0008170089626308282 0.2923809494494451" rpy="0 0 0"/>
+    <mass value="1.33088698268545"/>
+    <inertia ixx="0.0195508096535348" iyy="0.0194934024945922" izz="0.000871144215734764" ixy="4.67206117250929e-06" iyz="-4.80971973078023e-05" ixz="-0.00126364002372531"/>
+  </inertial>
+  <visual>
+    <origin xyz="-0.084 -0.0 -0.0936" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="package://create3_urdf_assem_description/meshes/ArmAssem-LowTorque_v22_1.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+    <material name="nylon_12_with_formlabs_fuse_1_3d_printer"/>
+  </visual>
+  <collision>
+    <origin xyz="-0.084 -0.0 -0.0936" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="package://create3_urdf_assem_description/meshes/ArmAssem-LowTorque_v22_1.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+  </collision>
+</link>
+
+<joint name="Rigid 31" type="fixed">
+  <origin xyz="0.107763 -0.015 0.0936" rpy="0 0 0"/>
+  <parent link="base_link"/>
+  <child link="Support_large_v2_1"/>
+</joint>
+
+<joint name="Revolute 32" type="revolute">
+  <origin xyz="-0.004387 -0.0115 0.0269" rpy="0 0 0"/>
+  <parent link="Support_large_v2_1"/>
+  <child link="RDS3225_-_for_URDF_v4_1"/>
+  <axis xyz="-0.0 -1.0 0.0"/>
+  <limit upper="2.094395" lower="-2.094395" effort="100" velocity="100"/>
+</joint>
+
+<joint name="Rigid 33" type="fixed">
+  <origin xyz="0.0 0.02575 0.037926" rpy="0 0 0"/>
+  <parent link="RDS3225_-_for_URDF_v4_1"/>
+  <child link="ArmLink_v3_1"/>
+</joint>
+
+<joint name="Rigid 34" type="fixed">
+  <origin xyz="0.0 0.0007 0.0635" rpy="0 0 0"/>
+  <parent link="ArmLink_v3_1"/>
+  <child link="Support_large_v2_2"/>
+</joint>
+
+<joint name="Revolute 35" type="revolute">
+  <origin xyz="0.0 -0.0265 0.0269" rpy="0 0 0"/>
+  <parent link="Support_large_v2_2"/>
+  <child link="RDS3225_-_for_URDF_v4_2"/>
+  <axis xyz="0.0 -1.0 0.0"/>
+  <limit upper="2.094395" lower="-2.094395" effort="100" velocity="100"/>
+</joint>
+
+<joint name="Rigid 36" type="fixed">
+  <origin xyz="0.0 0.02575 0.037925" rpy="0 0 0"/>
+  <parent link="RDS3225_-_for_URDF_v4_2"/>
+  <child link="ArmLink_v3_2"/>
+</joint>
+
+<joint name="Rigid 37" type="fixed">
+  <origin xyz="0.0 0.0007 0.0635" rpy="0 0 0"/>
+  <parent link="ArmLink_v3_2"/>
+  <child link="Support_large_v2_3"/>
+</joint>
+
+<joint name="Revolute 38" type="revolute">
+  <origin xyz="0.0 -0.0265 0.0269" rpy="0 0 0"/>
+  <parent link="Support_large_v2_3"/>
+  <child link="RDS3225_-_for_URDF_v4_3"/>
+  <axis xyz="0.0 -1.0 0.0"/>
+  <limit upper="2.094395" lower="-2.094395" effort="100" velocity="100"/>
+</joint>
+
+<joint name="Rigid 59" type="fixed">
+  <origin xyz="0.0 0.02575 0.037926" rpy="0 0 0"/>
+  <parent link="RDS3225_-_for_URDF_v4_3"/>
+  <child link="Base_v8_1"/>
+</joint>
+
+<joint name="Revolute 60" type="continuous">
+  <origin xyz="0.026307 0.0124 0.023" rpy="0 0 0"/>
+  <parent link="Base_v8_1"/>
+  <child link="DriverArm_v2_1"/>
+  <axis xyz="1.0 -1e-06 -1e-06"/>
+</joint>
+
+<joint name="Revolute 61" type="continuous">
+  <origin xyz="0.025918 -0.012 0.02305" rpy="0 0 0"/>
+  <parent link="Base_v8_1"/>
+  <child link="DrivenArm_v2_1"/>
+  <axis xyz="-1.0 -0.0 1e-06"/>
+</joint>
+
+<joint name="Revolute 62" type="continuous">
+  <origin xyz="0.025918 -0.004346 0.042352" rpy="0 0 0"/>
+  <parent link="Base_v8_1"/>
+  <child link="FrontArmLeft_v2_1"/>
+  <axis xyz="-1.0 -0.0 1e-06"/>
+</joint>
+
+<joint name="Revolute 63" type="continuous">
+  <origin xyz="0.025918 0.00475 0.042352" rpy="0 0 0"/>
+  <parent link="Base_v8_1"/>
+  <child link="FrontArmRight_v2_1"/>
+  <axis xyz="-1.0 -0.0 1e-06"/>
+</joint>
+
+<joint name="Revolute 64" type="continuous">
+  <origin xyz="0.0175 0.0 0.042585" rpy="0 0 0"/>
+  <parent link="FrontArmLeft_v2_1"/>
+  <child link="LeftPad_v2_1"/>
+  <axis xyz="-1.0 -0.0 0.0"/>
+</joint>
+
+<joint name="Revolute 65" type="continuous">
+  <origin xyz="0.0175 0.0 0.042585" rpy="0 0 0"/>
+  <parent link="FrontArmRight_v2_1"/>
+  <child link="RightPad_v2_1"/>
+  <axis xyz="-1.0 -0.0 0.0"/>
+</joint>
+
+<joint name="Rigid 69" type="fixed">
+  <origin xyz="0.012 0.0 0.0" rpy="0 0 0"/>
+  <parent link="base_link"/>
+  <child link="CameraMount_v12_1"/>
+</joint>
+
+<joint name="Rigid 71" type="fixed">
+  <origin xyz="-0.06 0.0 0.107887" rpy="0 0 0"/>
+  <parent link="base_link"/>
+  <child link="Basket_v9_1"/>
+</joint>
+
+<joint name="Rigid 72" type="fixed">
+  <origin xyz="0.084 0.0 0.0936" rpy="0 0 0"/>
+  <parent link="base_link"/>
+  <child link="ArmAssem-LowTorque_v22_1"/>
+</joint>
+
+</robot>

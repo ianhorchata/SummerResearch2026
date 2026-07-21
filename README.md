@@ -151,7 +151,7 @@ ros2 launch robot_vision vision.launch.py save_debug_images:=false
 - **Latency:** the service call blocks until inference finishes. If you later
   need progress/cancel or run heavier models, switch it to a ROS 2 action.
 
-## Notes / gotchas
+## Notes
 
 - **Units:** `joint_states` / `joint_command` use **radians** (ROS convention,
   so this plugs into `robot_state_publisher`, RViz, MoveIt later). The

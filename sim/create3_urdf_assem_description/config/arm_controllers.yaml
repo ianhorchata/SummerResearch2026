@@ -1,0 +1,39 @@
+# Arm controllers, loaded into the SAME controller_manager that gz_ros2_control
+# creates for the Create 3 (which already runs joint_state_broadcaster and
+# diffdrive_controller from irobot_create_control/config/control.yaml).
+#
+# update_rate is intentionally omitted here: it is already set by control.yaml,
+# and both files are merged into the one controller_manager node.
+/**:
+  controller_manager:
+    ros__parameters:
+      arm_controller:
+        type: joint_trajectory_controller/JointTrajectoryController
+      gripper_controller:
+        type: joint_trajectory_controller/JointTrajectoryController
+
+arm_controller:
+  ros__parameters:
+    joints:
+      - arm_joint_1
+      - arm_joint_2
+      - arm_joint_3
+    command_interfaces:
+      - position
+    state_interfaces:
+      - position
+      - velocity
+    allow_partial_joints_goal: true
+    # Interpolate a smooth path even when we only send a single target point.
+    interpolation_method: splines
+
+gripper_controller:
+  ros__parameters:
+    joints:
+      - gripper_joint
+    command_interfaces:
+      - position
+    state_interfaces:
+      - position
+      - velocity
+    allow_partial_joints_goal: true

@@ -1,0 +1,99 @@
+<?xml version="1.0"?>
+<!--
+  Standard Create 3 dock for Gazebo Harmonic spawn.
+
+  Same as irobot_create_description/urdf/dock/standard_dock.urdf.xacro but
+  uses file:// mesh paths so visuals resolve when spawned via ros_gz_sim create
+  (package:// URIs work in RViz but not in Gazebo).
+-->
+<robot name="standard_dock" xmlns:xacro="http://www.ros.org/wiki/xacro">
+  <xacro:include filename="$(find irobot_create_description)/urdf/common_properties.urdf.xacro"/>
+  <xacro:include filename="$(find irobot_create_description)/urdf/dock/ir_emitter.urdf.xacro"/>
+
+  <xacro:arg name="gazebo" default="ignition"/>
+  <xacro:arg name="namespace" default=""/>
+  <xacro:arg name="visualize_rays" default="false"/>
+  <!-- Overridable so CMake can build before this package is installed. -->
+  <xacro:arg name="dock_mesh_uri"
+             default="file://$(find create3_urdf_assem_description)/meshes/dock_visual.obj"/>
+
+  <xacro:property name="z_offset" value="${4.6*mm2m}"/>
+  <xacro:property name="link_name" value="std_dock_link"/>
+  <xacro:property name="dock_mesh" value="$(arg dock_mesh_uri)"/>
+
+  <link name="${link_name}">
+    <visual name="dock_mesh">
+      <origin xyz="0 0 ${z_offset}"/>
+      <geometry>
+        <mesh filename="${dock_mesh}"/>
+      </geometry>
+    </visual>
+    <collision>
+      <origin xyz="-0.045 0 0.05"/>
+      <geometry>
+        <box size="0.04 0.13 0.1"/>
+      </geometry>
+    </collision>
+    <xacro:inertial_dummy/>
+  </link>
+
+  <xacro:property name="buoy_x" value="${-6*cm2m}"/>
+  <xacro:property name="buoy_z" value="${0.065 - z_offset}"/>
+
+  <xacro:property name="halo_name" value="halo"/>
+  <xacro:property name="green_buoy_name" value="green_buoy"/>
+  <xacro:property name="red_buoy_name" value="red_buoy"/>
+  <xacro:property name="yellow_buoy_name" value="yellow_buoy"/>
+
+  <xacro:property name="buoy_lateral_angle_yaw" value="${10*deg2rad}"/>
+  <xacro:property name="buoy_lateral_aperture" value="${30*deg2rad}"/>
+
+  <xacro:ir_emitter name="${green_buoy_name}"
+                    parent="${link_name}"
+                    gazebo="$(arg gazebo)"
+                    aperture="${buoy_lateral_aperture}"
+                    max_range="1.0"
+                    visualize="$(arg visualize_rays)">
+    <origin xyz="${buoy_x} 0 ${buoy_z}" rpy="0 0 ${- buoy_lateral_angle_yaw}"/>
+  </xacro:ir_emitter>
+
+  <xacro:ir_emitter name="${red_buoy_name}"
+                    parent="${link_name}"
+                    gazebo="$(arg gazebo)"
+                    aperture="${buoy_lateral_aperture}"
+                    max_range="1.0"
+                    visualize="$(arg visualize_rays)">
+    <origin xyz="${buoy_x} 0 ${buoy_z}" rpy="0 0 ${buoy_lateral_angle_yaw}"/>
+  </xacro:ir_emitter>
+
+  <xacro:ir_emitter name="${yellow_buoy_name}"
+                    parent="${link_name}"
+                    gazebo="$(arg gazebo)"
+                    aperture="${10*deg2rad}"
+                    max_range="1.0"
+                    visualize="$(arg visualize_rays)">
+    <origin xyz="${buoy_x} 0 ${buoy_z}"/>
+  </xacro:ir_emitter>
+
+  <xacro:ir_emitter name="${halo_name}"
+                    parent="${link_name}"
+                    gazebo="$(arg gazebo)"
+                    aperture="360"
+                    max_range="0.6096"
+                    visualize="$(arg visualize_rays)">
+    <origin xyz="${buoy_x} 0 ${0.095 - z_offset}"/>
+  </xacro:ir_emitter>
+
+  <xacro:if value="${'$(arg gazebo)' == 'ignition'}">
+    <gazebo>
+      <static>true</static>
+      <plugin filename="libgz-sim-pose-publisher-system.so" name="gz::sim::systems::PosePublisher">
+        <publish_link_pose>true</publish_link_pose>
+        <publish_nested_model_pose>true</publish_nested_model_pose>
+        <use_pose_vector_msg>true</use_pose_vector_msg>
+        <update_frequency>62</update_frequency>
+      </plugin>
+    </gazebo>
+  </xacro:if>
+
+</robot>

@@ -1,0 +1,34 @@
+# colcon / ROS 2
+build/
+install/
+log/
+.colcon/
+
+# local / reference clones
+.sr2026_ref/
+
+# Python
+**/__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+dist/
+
+# editor / OS
+.vscode/
+.idea/
+*.swp
+*~
+.DS_Store
+
+# local run logs
+*.log
+apt_update.log
+ros_dryrun.log
+
+# Third-party deps (clone per README; not vendored here)
+src/gscam2/
+src/ros2_shared/
+
+# Sim stack held back until it is more usable
+sim/create3_sim/

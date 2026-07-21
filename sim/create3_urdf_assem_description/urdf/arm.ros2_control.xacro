@@ -1,0 +1,50 @@
+<?xml version="1.0" ?>
+<!--
+  ros2_control hardware description for the arm joints in Gazebo Harmonic.
+
+  This does NOT declare its own gz_ros2_control plugin: the Create 3
+  (create3.urdf.xacro, gazebo:=ignition) already instantiates a single
+  gz_ros2_control::GazeboSimROS2ControlPlugin. gz_ros2_control aggregates every
+  <ros2_control> block in the model into that one controller_manager, so we just
+  add the arm joints here and spawn the arm controllers against the same manager.
+
+  Only the four actuated joints have command interfaces. Gripper passive joints
+  (gripper_passive_1..5) are omitted here on purpose: with the
+  bullet-featherstone physics engine, Gazebo enforces the URDF/SDF <mimic> tags
+  directly. Listing them in ros2_control would make gz_ros2_control emulate
+  mimics in software on top of physics and the 4-bar linkage fights itself.
+-->
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <xacro:macro name="arm_ros2_control" params="name:=arm_system">
+    <ros2_control name="${name}" type="system">
+      <hardware>
+        <plugin>gz_ros2_control/GazeboSimSystem</plugin>
+      </hardware>
+
+      <joint name="arm_joint_1">
+        <command_interface name="position"/>
+        <state_interface name="position"/>
+        <state_interface name="velocity"/>
+      </joint>
+
+      <joint name="arm_joint_2">
+        <command_interface name="position"/>
+        <state_interface name="position"/>
+        <state_interface name="velocity"/>
+      </joint>
+
+      <joint name="arm_joint_3">
+        <command_interface name="position"/>
+        <state_interface name="position"/>
+        <state_interface name="velocity"/>
+      </joint>
+
+      <joint name="gripper_joint">
+        <command_interface name="position"/>
+        <state_interface name="position"/>
+        <state_interface name="velocity"/>
+      </joint>
+    </ros2_control>
+  </xacro:macro>
+</robot>

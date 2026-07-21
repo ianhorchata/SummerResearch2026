@@ -1,0 +1,8 @@
+# Request: grab the latest frame from one camera and run object detection on it.
+string  camera            # which camera to use: "left" or "right"
+float32 confidence        # min confidence 0.0-1.0; <= 0 uses the node's default
+---
+# Response
+bool    success
+string  message           # human-readable status / error detail
+vision_msgs/Detection2DArray detections   # detected objects (empty if none)

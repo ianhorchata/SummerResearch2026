@@ -1,0 +1,9 @@
+# Request: move a set of servos to absolute angles (degrees, 0-240).
+# ids[i] moves to positions_deg[i]. The two arrays must be the same length.
+int32[]   ids
+float64[] positions_deg
+int32     time_ms          # travel time per move in milliseconds (e.g. 800)
+---
+# Response
+bool   success
+string message

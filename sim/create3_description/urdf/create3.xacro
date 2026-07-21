@@ -1,0 +1,395 @@
+<?xml version="1.0" ?>
+<robot name="create3" xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+<xacro:include filename="$(find create3_description)/urdf/materials.xacro" />
+<xacro:include filename="$(find create3_description)/urdf/create3.trans" />
+<link name="base_link">
+  <inertial>
+    <origin xyz="-0.0477595047884527 0.000298448678833571 0.0707622437392598" rpy="0 0 0"/>
+    <mass value="34193.1298560243"/>
+    <inertia ixx="38.5098038454998" iyy="134.291516592159" izz="159.373808413179" ixy="16.1193379165044" iyz="2.58280915575952" ixz="-4.18554595430247"/>
+  </inertial>
+  <visual>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="package://create3_description/meshes/base_link.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+    <material name="steel_satin"/>
+  </visual>
+  <collision>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="package://create3_description/meshes/base_link.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+  </collision>
+</link>
+
+<link name="Basket_v13_1">
+  <inertial>
+    <origin xyz="-0.06000000000000006 -4.0407086268225834e-16 0.11140257124752022" rpy="0 0 0"/>
+    <mass value="0.11499422004452"/>
+    <inertia ixx="0.00043809225232158" iyy="0.000273236994506813" izz="0.000522589824382586" ixy="1.341438309011251e-18" iyz="-3.331954306378923e-18" ixz="-5.421010862427522e-19"/>
+  </inertial>
+  <visual>
+    <origin xyz="-0.0 -0.0 -0.0" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="package://create3_description/meshes/Basket_v13_1.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+    <material name="nylon_12_with_formlabs_fuse_1_3d_printer"/>
+  </visual>
+  <collision>
+    <origin xyz="-0.0 -0.0 -0.0" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="package://create3_description/meshes/Basket_v13_1.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+  </collision>
+</link>
+
+<link name="ArmAssem-LowTorque_v22_1">
+  <inertial>
+    <origin xyz="0.024474509498812844 0.0008170089626308247 0.29238094944944504" rpy="0 0 0"/>
+    <mass value="1.33088698268545"/>
+    <inertia ixx="0.0195508096535347" iyy="0.0194934024945922" izz="0.000871144215734764" ixy="4.67206117250925e-06" iyz="-4.80971973078023e-05" ixz="-0.0012636400237253"/>
+  </inertial>
+  <visual>
+    <origin xyz="-0.084 0.0 -0.0936" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="package://create3_description/meshes/ArmAssem-LowTorque_v22_1.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+    <material name="nylon_12_with_formlabs_fuse_1_3d_printer"/>
+  </visual>
+  <collision>
+    <origin xyz="-0.084 0.0 -0.0936" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="package://create3_description/meshes/ArmAssem-LowTorque_v22_1.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+  </collision>
+</link>
+
+<link name="ArmLink_Assem_v2_1">
+  <inertial>
+    <origin xyz="-0.0005551221331234757 -0.02678554127174524 0.03869458338113388" rpy="0 0 0"/>
+    <mass value="0.130177049170526"/>
+    <inertia ixx="0.000222170706605568" iyy="0.000197795129567611" izz="3.658812708562e-05" ixy="-1.61004432074186e-09" iyz="-1.8967903760383e-07" ixz="2.24911220115609e-06"/>
+  </inertial>
+  <visual>
+    <origin xyz="-0.102763 -0.0265 -0.1205" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="package://create3_description/meshes/ArmLink_Assem_v2_1.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+    <material name="aluminum_polished"/>
+  </visual>
+  <collision>
+    <origin xyz="-0.102763 -0.0265 -0.1205" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="package://create3_description/meshes/ArmLink_Assem_v2_1.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+  </collision>
+</link>
+
+<link name="ArmLink_Assem_v2_2">
+  <inertial>
+    <origin xyz="-0.0005551221331235173 -0.026785541271745025 0.038694600994638895" rpy="0 0 0"/>
+    <mass value="0.130177049170526"/>
+    <inertia ixx="0.00022217070660557" iyy="0.000197795129567612" izz="3.65881270856204e-05" ixy="-1.61004432074398e-09" iyz="-1.89679037603877e-07" ixz="2.24911220115609e-06"/>
+  </inertial>
+  <visual>
+    <origin xyz="-0.102763 -0.02655 -0.248817" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="package://create3_description/meshes/ArmLink_Assem_v2_2.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+    <material name="aluminum_polished"/>
+  </visual>
+  <collision>
+    <origin xyz="-0.102763 -0.02655 -0.248817" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="package://create3_description/meshes/ArmLink_Assem_v2_2.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+  </collision>
+</link>
+
+<link name="CameraMount_v13_1">
+  <inertial>
+    <origin xyz="0.017665048733732144 -0.0007537586196804105 0.07268222121610508" rpy="0 0 0"/>
+    <mass value="0.0127941853293666"/>
+    <inertia ixx="0.000208830007764862" iyy="3.7145764850646e-06" izz="0.000206229140336679" ixy="-1.09067449786702e-08" iyz="2.08452951027886e-07" ixz="6.16373943476948e-07"/>
+  </inertial>
+  <visual>
+    <origin xyz="-0.0 -0.0 -0.0" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="package://create3_description/meshes/CameraMount_v13_1.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+    <material name="nylon_12_with_formlabs_fuse_1_3d_printer"/>
+  </visual>
+  <collision>
+    <origin xyz="-0.0 -0.0 -0.0" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="package://create3_description/meshes/CameraMount_v13_1.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+  </collision>
+</link>
+
+<link name="DrivenArm_v2_1">
+  <inertial>
+    <origin xyz="0.0018673970936629036 -1.0280938773921111e-09 0.021529759537284032" rpy="0 0 0"/>
+    <mass value="0.00854038789073064"/>
+    <inertia ixx="3.53704128751319e-06" iyy="3.70293575717461e-06" izz="4.60395655026163e-07" ixy="-8.090130263838438e-16" iyz="1.565001993557476e-13" ixz="-6.60995881882369e-08"/>
+  </inertial>
+  <visual>
+    <origin xyz="-0.128681 0.01255 -0.438101" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="package://create3_description/meshes/DrivenArm_v2_1.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+    <material name="aluminum_satin"/>
+  </visual>
+  <collision>
+    <origin xyz="-0.128681 0.01255 -0.438101" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="package://create3_description/meshes/DrivenArm_v2_1.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+  </collision>
+</link>
+
+<link name="DriverArm_v2_1">
+  <inertial>
+    <origin xyz="0.0018282857610038283 1.3368481251475883e-06 0.020586093564154473" rpy="0 0 0"/>
+    <mass value="0.00894442654078101"/>
+    <inertia ixx="3.72210504394539e-06" iyy="3.87544643711511e-06" izz="4.78096502262091e-07" ixy="-9.003251554115695e-12" iyz="-2.63898014097946e-10" ixz="-7.32275454850152e-08"/>
+  </inertial>
+  <visual>
+    <origin xyz="-0.12907 -0.01185 -0.438051" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="package://create3_description/meshes/DriverArm_v2_1.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+    <material name="aluminum_satin"/>
+  </visual>
+  <collision>
+    <origin xyz="-0.12907 -0.01185 -0.438051" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="package://create3_description/meshes/DriverArm_v2_1.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+  </collision>
+</link>
+
+<link name="FrontArmLeft_v2_1">
+  <inertial>
+    <origin xyz="0.002212740648021183 -3.802814928692902e-07 0.03526507682589175" rpy="0 0 0"/>
+    <mass value="0.00440333324799871"/>
+    <inertia ixx="8.07103574171179e-07" iyy="1.10375934229598e-06" izz="3.21260210004977e-07" ixy="-1.591343321459754e-12" iyz="-3.303251162184440e-11" ixz="-2.29806381504567e-08"/>
+  </inertial>
+  <visual>
+    <origin xyz="-0.128681 0.004896 -0.457403" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="package://create3_description/meshes/FrontArmLeft_v2_1.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+    <material name="aluminum_satin"/>
+  </visual>
+  <collision>
+    <origin xyz="-0.128681 0.004896 -0.457403" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="package://create3_description/meshes/FrontArmLeft_v2_1.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+  </collision>
+</link>
+
+<link name="FrontArmRight_v2_1">
+  <inertial>
+    <origin xyz="0.002212740648066369 5.340535291073131e-07 0.03526507682586799" rpy="0 0 0"/>
+    <mass value="0.0044033332479868"/>
+    <inertia ixx="8.0710360417474e-07" iyy="1.10375934229121e-06" izz="3.21260240006003e-07" ixy="1.648360665830787e-12" iyz="3.289259880770836e-11" ixz="-2.29806381508903e-08"/>
+  </inertial>
+  <visual>
+    <origin xyz="-0.128681 -0.0042 -0.457403" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="package://create3_description/meshes/FrontArmRight_v2_1.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+    <material name="aluminum_satin"/>
+  </visual>
+  <collision>
+    <origin xyz="-0.128681 -0.0042 -0.457403" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="package://create3_description/meshes/FrontArmRight_v2_1.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+  </collision>
+</link>
+
+<link name="LeftPad_v2_1">
+  <inertial>
+    <origin xyz="-0.014500135487571925 0.0022332025380023234 0.028341191588216408" rpy="0 0 0"/>
+    <mass value="0.0152834385878526"/>
+    <inertia ixx="3.79296682396363e-06" iyy="5.38017343292181e-06" izz="2.59536641118426e-06" ixy="5.106430482995118e-13" iyz="-7.70848043957385e-07" ixz="-5.422499688850779e-12"/>
+  </inertial>
+  <visual>
+    <origin xyz="-0.144681 0.01255 -0.480686" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="package://create3_description/meshes/LeftPad_v2_1.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+    <material name="aluminum_satin"/>
+  </visual>
+  <collision>
+    <origin xyz="-0.144681 0.01255 -0.480686" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="package://create3_description/meshes/LeftPad_v2_1.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+  </collision>
+</link>
+
+<link name="RightPad_v2_1">
+  <inertial>
+    <origin xyz="-0.014500027644216151 -0.002233057301935279 0.028341187437789073" rpy="0 0 0"/>
+    <mass value="0.0152834381646124"/>
+    <inertia ixx="3.79296716121295e-06" iyy="5.38017329065194e-06" izz="2.59536675226613e-06" ixy="1.091684502399579e-12" iyz="7.7084682724775e-07" ixz="-5.974396324881504e-12"/>
+  </inertial>
+  <visual>
+    <origin xyz="-0.14507 -0.011854 -0.480636" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="package://create3_description/meshes/RightPad_v2_1.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+    <material name="aluminum_satin"/>
+  </visual>
+  <collision>
+    <origin xyz="-0.14507 -0.011854 -0.480636" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="package://create3_description/meshes/RightPad_v2_1.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+  </collision>
+</link>
+
+<link name="RDS3225_-_for_URDF_v5_1">
+  <inertial>
+    <origin xyz="-7.433028170189537e-07 -0.02683132902450605 0.012322771916488007" rpy="0 0 0"/>
+    <mass value="0.0791893057217848"/>
+    <inertia ixx="2.82106812690194e-05" iyy="1.58164077691415e-05" izz="1.74398753985518e-05" ixy="2.415999720201076e-11" iyz="4.12347903638339e-07" ixz="-5.356776740933489e-11"/>
+  </inertial>
+  <visual>
+    <origin xyz="-0.102763 -0.0266 -0.377134" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="package://create3_description/meshes/RDS3225_-_for_URDF_v5_1.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+    <material name="aluminum_anodized_glossy_blue"/>
+  </visual>
+  <collision>
+    <origin xyz="-0.102763 -0.0266 -0.377134" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="package://create3_description/meshes/RDS3225_-_for_URDF_v5_1.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+  </collision>
+</link>
+
+<link name="Base_v8_1">
+  <inertial>
+    <origin xyz="0.00038555172899897017 0.002775906354052858 0.019181141479140074" rpy="0 0 0"/>
+    <mass value="0.172135511489978"/>
+    <inertia ixx="7.43707221079887e-05" iyy="7.65171561616304e-05" izz="0.000100049270469719" ixy="1.11277277933259e-07" iyz="2.44198108194339e-08" ixz="-5.13466019367876e-06"/>
+  </inertial>
+  <visual>
+    <origin xyz="-0.102763 0.00055 -0.415051" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="package://create3_description/meshes/Base_v8_1.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+    <material name="aluminum_satin"/>
+  </visual>
+  <collision>
+    <origin xyz="-0.102763 0.00055 -0.415051" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="package://create3_description/meshes/Base_v8_1.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+  </collision>
+</link>
+
+<joint name="Rigid 73" type="fixed">
+  <origin xyz="0.0 0.0 0.0" rpy="0 0 0"/>
+  <parent link="base_link"/>
+  <child link="Basket_v13_1"/>
+</joint>
+
+<joint name="Rigid 74" type="fixed">
+  <origin xyz="0.084 0.0 0.0936" rpy="0 0 0"/>
+  <parent link="base_link"/>
+  <child link="ArmAssem-LowTorque_v22_1"/>
+</joint>
+
+<joint name="Servo1" type="revolute">
+  <origin xyz="0.018763 0.0265 0.0269" rpy="0 0 0"/>
+  <parent link="ArmAssem-LowTorque_v22_1"/>
+  <child link="ArmLink_Assem_v2_1"/>
+  <axis xyz="0.0 1.0 -0.0"/>
+  <limit upper="2.094395" lower="-2.094395" effort="100" velocity="100"/>
+</joint>
+
+<joint name="Servo2" type="revolute">
+  <origin xyz="0.0 5e-05 0.128317" rpy="0 0 0"/>
+  <parent link="ArmLink_Assem_v2_1"/>
+  <child link="ArmLink_Assem_v2_2"/>
+  <axis xyz="0.0 1.0 0.0"/>
+  <limit upper="2.094395" lower="-2.094395" effort="100" velocity="100"/>
+</joint>
+
+<joint name="Rigid 78" type="fixed">
+  <origin xyz="0.0 0.0 0.0" rpy="0 0 0"/>
+  <parent link="base_link"/>
+  <child link="CameraMount_v13_1"/>
+</joint>
+
+<joint name="Revolute 82" type="continuous">
+  <origin xyz="0.025918 -0.012 0.02305" rpy="0 0 0"/>
+  <parent link="Base_v8_1"/>
+  <child link="DrivenArm_v2_1"/>
+  <axis xyz="-1.0 0.0 1e-06"/>
+  <mimic joint="Servo4" multiplier="1" offset="0"/>
+</joint>
+
+<joint name="Servo4" type="continuous">
+  <origin xyz="0.026307 0.0124 0.023" rpy="0 0 0"/>
+  <parent link="Base_v8_1"/>
+  <child link="DriverArm_v2_1"/>
+  <axis xyz="1.0 -1e-06 -1e-06"/>
+</joint>
+
+<joint name="Revolute 85" type="continuous">
+  <origin xyz="0.025918 -0.004346 0.042352" rpy="0 0 0"/>
+  <parent link="Base_v8_1"/>
+  <child link="FrontArmLeft_v2_1"/>
+  <axis xyz="-1.0 0.0 1e-06"/>
+  <mimic joint="Servo4" multiplier="1" offset="0"/>
+</joint>
+
+<joint name="Revolute 86" type="continuous">
+  <origin xyz="0.025918 0.00475 0.042352" rpy="0 0 0"/>
+  <parent link="Base_v8_1"/>
+  <child link="FrontArmRight_v2_1"/>
+  <axis xyz="-1.0 0.0 1e-06"/>
+  <mimic joint="Servo4" multiplier="-1" offset="0"/>
+</joint>
+
+<joint name="Revolute 87" type="continuous">
+  <origin xyz="0.016 0.0 0.042585" rpy="0 0 0"/>
+  <parent link="DrivenArm_v2_1"/>
+  <child link="LeftPad_v2_1"/>
+  <axis xyz="-1.0 -0.0 1e-06"/>
+  <mimic joint="Servo4" multiplier="-1" offset="0"/>
+</joint>
+
+<joint name="Revolute 88" type="continuous">
+  <origin xyz="0.016 4e-06 0.042585" rpy="0 0 0"/>
+  <parent link="DriverArm_v2_1"/>
+  <child link="RightPad_v2_1"/>
+  <axis xyz="-1.0 1e-06 1e-06"/>
+  <mimic joint="Servo4" multiplier="1" offset="0"/>
+</joint>
+
+<joint name="Servo3" type="revolute">
+  <origin xyz="0.0 5e-05 0.128317" rpy="0 0 0"/>
+  <parent link="ArmLink_Assem_v2_2"/>
+  <child link="RDS3225_-_for_URDF_v5_1"/>
+  <axis xyz="0.0 1.0 0.0"/>
+  <limit upper="2.094395" lower="-2.094395" effort="100" velocity="100"/>
+</joint>
+
+<joint name="Rigid 90" type="fixed">
+  <origin xyz="0.0 -0.02715 0.037917" rpy="0 0 0"/>
+  <parent link="RDS3225_-_for_URDF_v5_1"/>
+  <child link="Base_v8_1"/>
+</joint>
+
+</robot>

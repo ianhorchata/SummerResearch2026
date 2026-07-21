@@ -1,0 +1,19 @@
+# Run 2D detection on one camera, then project the chosen box center onto
+# a horizontal ground plane in target_frame (default: base_link, z=0).
+#
+# This is the simple "floor pick" path. Stereo depth can replace the
+# projector later without changing the service contract much.
+
+string  camera              # "left" or "right"
+float32 confidence          # <= 0 uses vision_node default
+string  target_frame        # empty -> node default (usually "base_link")
+string  class_filter        # empty -> any class; else exact YOLO class_id match
+float32 ground_z            # plane height in target_frame (usually 0)
+int32   detection_index     # which detection to project after filtering;
+                            # < 0 = highest-confidence match
+---
+bool    success
+string  message
+geometry_msgs/PoseStamped pose              # object contact point on the plane
+vision_msgs/Detection2D detection           # the 2D box that was projected
+vision_msgs/Detection2DArray all_detections # full YOLO result for debugging

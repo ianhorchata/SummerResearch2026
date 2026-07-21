@@ -1,0 +1,39 @@
+<?xml version="1.0" ?>
+<!--
+  Top-level model: iRobot Create 3 (unchanged) + custom arm/payload grafted on.
+
+  Build the robot_description with, e.g.:
+    xacro create3_with_arm.urdf.xacro gazebo:=ignition
+
+  The Create 3 side keeps ALL of its sensors, plugins and the single
+  gz_ros2_control plugin. We only add the arm links/joints and the arm
+  ros2_control interfaces, joined to the Create 3 base_link by one fixed
+  mount joint (arm_mount_xyz / arm_mount_rpy) that you can tune to seat the
+  payload on the top plate.
+-->
+<robot name="create3" xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <!-- Tunable pose of the payload mount relative to the Create 3 base_link.
+       Scalar args (no spaces) so xacro CLI parsing stays reliable. -->
+  <xacro:arg name="arm_mount_x" default="0"/>
+  <xacro:arg name="arm_mount_y" default="0"/>
+  <xacro:arg name="arm_mount_z" default="0.038"/>
+  <xacro:arg name="arm_mount_roll" default="0"/>
+  <xacro:arg name="arm_mount_pitch" default="0"/>
+  <xacro:arg name="arm_mount_yaw" default="0"/>
+
+  <!-- iRobot Create 3. Passes gazebo:=ignition and control_yaml from CLI. -->
+  <xacro:include filename="$(find irobot_create_description)/urdf/create3.urdf.xacro"/>
+
+  <!-- Arm geometry + arm ros2_control interfaces. -->
+  <xacro:include filename="$(find create3_urdf_assem_description)/urdf/arm.urdf.xacro"/>
+  <xacro:include filename="$(find create3_urdf_assem_description)/urdf/arm.ros2_control.xacro"/>
+
+  <xacro:create3_arm parent="base_link">
+    <origin xyz="$(arg arm_mount_x) $(arg arm_mount_y) $(arg arm_mount_z)"
+            rpy="$(arg arm_mount_roll) $(arg arm_mount_pitch) $(arg arm_mount_yaw)"/>
+  </xacro:create3_arm>
+
+  <xacro:arm_ros2_control/>
+
+</robot>

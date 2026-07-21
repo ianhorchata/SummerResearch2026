@@ -1,0 +1,36 @@
+<?xml version="1.0"?>
+<?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
+<package format="3">
+  <name>robot_vision</name>
+  <version>0.1.0</version>
+  <description>On-demand class-agnostic object detection (FastSAM / classical blob /
+    optional YOLO) over gscam2 CSI streams, plus ground-plane pose projection.</description>
+  <maintainer email="horchi@lafayette.edu">i-horch</maintainer>
+  <url type="website">https://github.com/i-horch</url>
+  <license>MIT</license>
+
+  <exec_depend>rclpy</exec_depend>
+  <exec_depend>sensor_msgs</exec_depend>
+  <exec_depend>vision_msgs</exec_depend>
+  <exec_depend>cv_bridge</exec_depend>
+  <exec_depend>geometry_msgs</exec_depend>
+  <exec_depend>nav_msgs</exec_depend>
+  <exec_depend>tf2_ros</exec_depend>
+  <exec_depend>tf2_geometry_msgs</exec_depend>
+  <exec_depend>robot_interfaces</exec_depend>
+  <exec_depend>robot_arm</exec_depend>
+  <exec_depend>irobot_create_msgs</exec_depend>
+  <!-- python3-opencv is pulled in by cv_bridge; Ultralytics (pip: ultralytics)
+       is not packaged for rosdep and must be installed on the Jetson manually.
+       FastSAM weights (FastSAM-s.pt) download on first use. For a zero-download
+       path use backend:=blob. -->
+
+  <test_depend>ament_copyright</test_depend>
+  <test_depend>ament_flake8</test_depend>
+  <test_depend>ament_pep257</test_depend>
+  <test_depend>python3-pytest</test_depend>
+
+  <export>
+    <build_type>ament_python</build_type>
+  </export>
+</package>

@@ -170,7 +170,7 @@ ros2 launch robot_vision vision.launch.py save_debug_images:=false
 Three nodes cooperate: `robot_state_publisher` (URDF -> TF), a joint-state
 source, and `rviz2`.
 
-**Step 1 — see the model + move it by hand (no hardware needed):**
+**Step 1 — see the model + move it with sliders (no hardware needed):**
 
 ```bash
 colcon build --symlink-install && source install/setup.bash

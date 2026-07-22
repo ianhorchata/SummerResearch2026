@@ -1,4 +1,4 @@
-"""Simple open-loop arm grab sequence.
+"""Arm grab sequence (taught drop + optional IK grab).
 
 Sequence
 --------
@@ -8,14 +8,15 @@ Sequence
 4. Open the gripper (Servo4).
 
 Uses ``/arm/move_joints`` so each motion can set travel time (default 2 s).
-Poses are taught in radians (same as ``/arm/joint_states``) and converted
-through the same joint calibration as ``arm.launch.py``.
+Poses are in radians (same as ``/arm/joint_states``) and converted through
+the same joint calibration as ``arm.launch.py``.
+
+``drive_to_object`` can replace ``grab_pose`` with planar IK from stereo
+(``robot_arm.planar_ik``); ``DEFAULT_DROP`` stays taught.
 
     ros2 run robot_arm grab_sequence
     ros2 run robot_arm grab_sequence --ros-args -p dry_run:=true
     ros2 run robot_arm grab_sequence --ros-args -p move_ms:=2000
-
-``run_grab_sequence`` is also imported by ``drive_to_object`` for auto-grab.
 """
 
 from __future__ import annotations

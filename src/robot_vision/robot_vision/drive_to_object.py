@@ -3,11 +3,13 @@
 Only calls ``/vision/detect_poses`` while the Create 3 is stopped (no motion
 blur). After each navigate finishes, waits for settle, re-detects, and
 re-aims until the remaining approach distance is within tolerance. When at
-the grab standoff, runs the arm grab sequence unless ``auto_grab`` is false.
+the grab standoff, runs planar IK (stereo tip pose) then the arm grab
+sequence unless ``auto_grab`` / ``use_ik`` say otherwise.
 
     ros2 run robot_vision drive_to_object
     ros2 run robot_vision drive_to_object --ros-args -p dry_run:=true
     ros2 run robot_vision drive_to_object --ros-args -p auto_grab:=false
+    ros2 run robot_vision drive_to_object --ros-args -p use_ik:=false
     ros2 run robot_vision drive_to_object --ros-args \\
       -p grab_distance_m:=0.381 -p approach_tol_m:=0.05
 """
@@ -38,6 +40,11 @@ from robot_arm.grab_sequence import (
     DEFAULT_GRIPPER_OPEN,
     DEFAULT_MOVE_MS,
     run_grab_sequence,
+)
+from robot_arm.planar_ik import (
+    DEFAULT_EE_TIP_XYZ,
+    DEFAULT_GRAB_PITCH,
+    PlanarArmKinematics,
 )
 from robot_interfaces.srv import DetectObjectPoses, MoveJoints
 from vision_msgs.msg import Detection2D
@@ -73,11 +80,19 @@ class DriveToObject(Node):
         self.declare_parameter("dry_run", False)
         # After reaching grab standoff, run arm grab sequence (set false to debug drive).
         self.declare_parameter("auto_grab", True)
+        # Planar IK from stereo tip (x,z); false keeps taught grab_pose.
+        self.declare_parameter("use_ik", True)
         self.declare_parameter("grab_pose", DEFAULT_GRAB)
         self.declare_parameter("drop_pose", DEFAULT_DROP)
         self.declare_parameter("gripper_closed_rad", DEFAULT_GRIPPER_CLOSED)
         self.declare_parameter("gripper_open_rad", DEFAULT_GRIPPER_OPEN)
         self.declare_parameter("arm_move_ms", DEFAULT_MOVE_MS)
+        # Wrist pitch (rad); NaN => sum of taught DEFAULT_GRAB arm joints.
+        self.declare_parameter("grab_pitch_rad", float("nan"))
+        # Fallback tip height if stereo z is missing / on the ground plane.
+        self.declare_parameter("grab_height_m", 0.06)
+        self.declare_parameter("ee_tip_xyz", list(DEFAULT_EE_TIP_XYZ))
+        self.declare_parameter("ik_fallback_to_taught", True)
         self.declare_parameter("move_joints_service", "/arm/move_joints")
         self.declare_parameter("detect_timeout_sec", 90.0)
         self.declare_parameter("nav_timeout_sec", 120.0)
@@ -106,12 +121,25 @@ class DriveToObject(Node):
             self.get_parameter("achieve_goal_heading").value)
         self._dry_run = self._as_bool(self.get_parameter("dry_run").value)
         self._auto_grab = self._as_bool(self.get_parameter("auto_grab").value)
+        self._use_ik = self._as_bool(self.get_parameter("use_ik").value)
         self._grab_pose = [float(x) for x in self.get_parameter("grab_pose").value]
         self._drop_pose = [float(x) for x in self.get_parameter("drop_pose").value]
         self._gripper_closed = float(
             self.get_parameter("gripper_closed_rad").value)
         self._gripper_open = float(self.get_parameter("gripper_open_rad").value)
         self._arm_move_ms = int(self.get_parameter("arm_move_ms").value)
+        pitch_p = float(self.get_parameter("grab_pitch_rad").value)
+        self._grab_pitch = (
+            DEFAULT_GRAB_PITCH if not math.isfinite(pitch_p) else pitch_p
+        )
+        self._grab_height = float(self.get_parameter("grab_height_m").value)
+        tip = list(self.get_parameter("ee_tip_xyz").value)
+        if len(tip) != 3:
+            raise ValueError(f"ee_tip_xyz must have 3 values, got {tip}")
+        self._ee_tip = (float(tip[0]), float(tip[1]), float(tip[2]))
+        self._ik_fallback = self._as_bool(
+            self.get_parameter("ik_fallback_to_taught").value)
+        self._kin = PlanarArmKinematics(ee_tip_xyz=self._ee_tip)
         self._detect_timeout = float(
             self.get_parameter("detect_timeout_sec").value)
         self._nav_timeout = float(self.get_parameter("nav_timeout_sec").value)
@@ -158,7 +186,8 @@ class DriveToObject(Node):
             f"drive_to_object ready ({mode}, grab={self._grab_m:.3f}m / "
             f"{self._grab_m / 0.0254:.1f}in, max_size={self._max_size:.3f}m, "
             f"tol={self._approach_tol:.3f}m, max_iters={self._max_iters}, "
-            f"auto_grab={self._auto_grab}, dry_run={self._dry_run})"
+            f"auto_grab={self._auto_grab}, use_ik={self._use_ik}, "
+            f"dry_run={self._dry_run})"
         )
 
     @staticmethod
@@ -285,11 +314,24 @@ class DriveToObject(Node):
             self.get_logger().error("/arm/move_joints not available — cannot grab")
             return 1
 
+        grab_pose = list(self._grab_pose)
+        if self._use_ik:
+            ik_pose = self._solve_ik_grab_pose()
+            if ik_pose is not None:
+                grab_pose = ik_pose
+            elif not self._ik_fallback:
+                self.get_logger().error("IK grab failed and fallback disabled")
+                return 1
+            else:
+                self.get_logger().warn(
+                    "IK grab unavailable — falling back to taught grab_pose"
+                )
+
         try:
             run_grab_sequence(
                 self,
                 self._move_cli,
-                grab_pose=self._grab_pose,
+                grab_pose=grab_pose,
                 drop_pose=self._drop_pose,
                 gripper_closed_rad=self._gripper_closed,
                 gripper_open_rad=self._gripper_open,
@@ -300,6 +342,70 @@ class DriveToObject(Node):
             self.get_logger().error(f"Arm grab failed: {exc}")
             return 1
         return 0
+
+    def _solve_ik_grab_pose(self) -> Optional[list]:
+        """Fresh stereo pose at standoff -> planar IK grab joints (+ gripper open)."""
+        resp = self._call_detect_poses()
+        if resp is None or not resp.success:
+            self.get_logger().warn(
+                f"detect_poses failed for IK: "
+                f"{getattr(resp, 'message', 'no response')}"
+            )
+            return None
+
+        chosen = self._pick_best(
+            resp.detections.detections,
+            resp.poses,
+            list(resp.widths_m),
+            list(resp.heights_m),
+        )
+        if chosen is None:
+            self.get_logger().warn("No grab-able object for IK at standoff")
+            return None
+
+        det, pose, _w_m, h_m = chosen
+        tip_x = float(pose.pose.position.x)
+        tip_y = float(pose.pose.position.y)
+        tip_z = float(pose.pose.position.z)
+        if tip_z < 0.015:
+            tip_z = self._fallback_grab_height(h_m)
+            self.get_logger().info(
+                f"Pose z near ground — using grab height {tip_z:.3f}m"
+            )
+
+        try:
+            sol = self._kin.ik(
+                tip_x,
+                tip_z,
+                pitch=self._grab_pitch,
+                seed=self._grab_pose[:3],
+                y=tip_y,
+            )
+        except ValueError as exc:
+            self.get_logger().warn(f"IK failed: {exc}")
+            return None
+
+        self.get_logger().info(
+            f"IK grab tip=({tip_x:.3f}, y={tip_y:.3f}, z={tip_z:.3f}) "
+            f"pitch={self._grab_pitch:.3f} -> "
+            f"q=[{sol.joints[0]:.3f}, {sol.joints[1]:.3f}, {sol.joints[2]:.3f}] "
+            f"(id={det.id or '?'})"
+        )
+        if abs(tip_y) > 0.05:
+            self.get_logger().warn(
+                f"|y|={abs(tip_y):.3f}m off arm plane — base heading may be poor"
+            )
+        return [
+            sol.joints[0],
+            sol.joints[1],
+            sol.joints[2],
+            self._gripper_open,
+        ]
+
+    def _fallback_grab_height(self, height_m: float) -> float:
+        if math.isfinite(height_m) and height_m > 0.02:
+            return max(self._grab_height, 0.5 * float(height_m))
+        return self._grab_height
 
     def _sense_once(
         self,

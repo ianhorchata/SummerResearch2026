@@ -46,7 +46,7 @@ from vision_msgs.msg import (
     ObjectHypothesisWithPose,
 )
 
-from robot_interfaces.srv import DetectObjects
+from robot_interfaces.srv import DetectObjects, PersistDebugImages
 
 
 class VisionNode(Node):
@@ -63,9 +63,9 @@ class VisionNode(Node):
         self.declare_parameter("imgsz", 640)
         # Reject tiny noise and huge "floor/wall" segments.
         self.declare_parameter("min_area_frac", 0.001)
-        self.declare_parameter("max_area_frac", 0.2)
-        # Ignore detections whose center is above this fraction of image height
-        # (forward cameras: objects of interest sit in the lower FOV).
+        self.declare_parameter("max_area_frac", 0.3)
+        # Ignore detections whose bbox bottom is above this fraction of image
+        # height (forward cameras: floor contact sits in the lower FOV).
         self.declare_parameter("roi_top_frac", 0.5)
         self.declare_parameter("max_detections", 15)
         # Merge near-duplicate boxes: similar area + high overlap (IoS).
@@ -112,10 +112,18 @@ class VisionNode(Node):
 
         self._bridge = CvBridge()
         self._lock = threading.Lock()
+        # Serialize model inference (FastSAM/YOLO are not multi-thread safe).
+        # Frame grab / debug JPEG write can overlap another camera's infer.
+        self._infer_lock = threading.Lock()
         self._latest = {cam: None for cam in cameras}
         self._model = None
         self._model_kind: Optional[str] = None  # "fastsam" | "yolo"
         self._fastsam_predictor = None
+        # Cap concurrent JPEG writers so disk I/O cannot pile up.
+        self._debug_save_sem = threading.Semaphore(2)
+        # Last annotated (shrunk) frame per camera — written only when used.
+        self._debug_buf: dict = {}
+        self._debug_buf_lock = threading.Lock()
 
         self._cb_group = ReentrantCallbackGroup()
         sensor_qos = QoSProfile(
@@ -143,11 +151,19 @@ class VisionNode(Node):
             self._on_detect,
             callback_group=self._cb_group,
         )
+        self.create_service(
+            PersistDebugImages,
+            "vision/persist_debug_images",
+            self._on_persist_debug,
+            callback_group=self._cb_group,
+        )
 
         if self._save_debug:
             self._debug_dir.mkdir(parents=True, exist_ok=True)
             self.get_logger().info(
-                f"Debug images will be saved under {self._debug_dir}"
+                f"Debug images buffered under {self._debug_dir} "
+                "(annotated only; persist via /vision/persist_debug_images "
+                "or DetectObjects.save_debug:=true)"
             )
 
         self._ensure_model()
@@ -270,24 +286,25 @@ class VisionNode(Node):
         conf = request.confidence if request.confidence > 0.0 else self._default_conf
 
         try:
-            if self._backend == "blob":
-                boxes, annotated = self._run_blob(frame)
-                results_for_plot = None
-            elif self._backend == "fastsam":
-                try:
-                    boxes, results_for_plot = self._run_fastsam(frame, conf)
-                    annotated = None
-                except Exception as sam_exc:  # noqa: BLE001
-                    self.get_logger().error(
-                        f"FastSAM failed ({sam_exc}); falling back to blob"
-                    )
-                    # Stick with blob for later calls so the service stays usable.
-                    self._backend = "blob"
+            with self._infer_lock:
+                if self._backend == "blob":
                     boxes, annotated = self._run_blob(frame)
                     results_for_plot = None
-            else:
-                boxes, results_for_plot = self._run_yolo(frame, conf)
-                annotated = None
+                elif self._backend == "fastsam":
+                    try:
+                        boxes, results_for_plot = self._run_fastsam(frame, conf)
+                        annotated = None
+                    except Exception as sam_exc:  # noqa: BLE001
+                        self.get_logger().error(
+                            f"FastSAM failed ({sam_exc}); falling back to blob"
+                        )
+                        # Stick with blob for later calls so the service stays usable.
+                        self._backend = "blob"
+                        boxes, annotated = self._run_blob(frame)
+                        results_for_plot = None
+                else:
+                    boxes, results_for_plot = self._run_yolo(frame, conf)
+                    annotated = None
         except Exception as exc:  # noqa: BLE001
             response.success = False
             response.message = f"Detection failed ({self._backend}): {exc}"
@@ -304,10 +321,22 @@ class VisionNode(Node):
         self.get_logger().info(response.message)
 
         if self._save_debug:
-            saved = self._save_debug_images(
-                cam, frame, results_for_plot, annotated, boxes)
-            if saved:
-                response.message = f"{response.message}; saved {saved}"
+            # Prepare+buffer on this thread so persist after detect_poses sees
+            # the frames. Disk write is optional / deferred.
+            write_now = bool(getattr(request, "save_debug", False))
+            prepared = self._prepare_annotated(cam, frame, annotated, boxes)
+            if prepared is not None and boxes:
+                with self._debug_buf_lock:
+                    self._debug_buf[cam] = prepared
+            if write_now and prepared is not None:
+                self._enqueue_debug_write(cam, prepared)
+                response.message = (
+                    f"{response.message}; saving annotated debug image async"
+                )
+            else:
+                response.message = (
+                    f"{response.message}; debug image buffered"
+                )
 
         return response
 
@@ -548,8 +577,9 @@ class VisionNode(Node):
         bh = max(0.0, y2 - y1)
         if bw < 2.0 or bh < 2.0:
             return False
-        cy = (y1 + y2) * 0.5
-        if cy < h * self._roi_top_frac:
+        # Keep boxes whose contact/bottom edge is below the far-field cut.
+        # Using center rejected tall objects whose mid-point sat above the horizon.
+        if y2 < h * self._roi_top_frac:
             return False
         if apply_area:
             frac = (bw * bh) / float(h * w)
@@ -699,6 +729,131 @@ class VisionNode(Node):
             )
         return out
 
+    def _enqueue_debug_write(self, cam: str, annotated: np.ndarray) -> None:
+        """Write an already-prepared annotated JPEG on a daemon thread."""
+        img = annotated.copy()
+
+        def _worker():
+            if not self._debug_save_sem.acquire(blocking=False):
+                self.get_logger().warn(
+                    f"Debug save backlog — dropping image for '{cam}'"
+                )
+                return
+            try:
+                saved = self._write_annotated(cam, img)
+                if saved:
+                    self.get_logger().info(f"Saved debug image: {saved}")
+            finally:
+                self._debug_save_sem.release()
+
+        threading.Thread(
+            target=_worker, name=f"debug_save_{cam}", daemon=True
+        ).start()
+
+    def _on_persist_debug(self, request, response):
+        """Write buffered annotated frames for cameras that were actually used."""
+        if not self._save_debug:
+            response.success = False
+            response.message = "save_debug_images is disabled"
+            response.saved = []
+            return response
+
+        want = [str(c).strip() for c in (request.cameras or []) if str(c).strip()]
+        with self._debug_buf_lock:
+            if want:
+                cams = [c for c in want if c in self._debug_buf]
+            else:
+                cams = list(self._debug_buf.keys())
+            snapshots = {c: self._debug_buf[c].copy() for c in cams}
+
+        saved: List[str] = []
+        for cam, img in snapshots.items():
+            name = self._write_annotated(cam, img)
+            if name:
+                saved.append(name)
+
+        response.saved = saved
+        response.success = bool(saved)
+        response.message = (
+            f"Persisted {len(saved)} annotated debug image(s)"
+            if saved
+            else "No buffered debug images to persist"
+        )
+        if saved:
+            self.get_logger().info(response.message + ": " + ", ".join(saved))
+        return response
+
+    def _prepare_annotated(
+        self,
+        cam: str,
+        frame: np.ndarray,
+        annotated: Optional[np.ndarray],
+        boxes: List[Tuple[float, float, float, float, float, str]],
+    ) -> Optional[np.ndarray]:
+        """Build a downscaled annotated BGR image (no disk I/O)."""
+        try:
+            import cv2
+        except Exception as exc:  # noqa: BLE001
+            self.get_logger().warn(f"Could not import cv2 for debug images: {exc}")
+            return None
+
+        max_edge = 1600
+
+        def _shrink(img: np.ndarray) -> tuple:
+            h, w = img.shape[:2]
+            edge = max(h, w)
+            if edge <= max_edge:
+                return img, 1.0
+            scale = max_edge / float(edge)
+            return (
+                cv2.resize(
+                    img, (int(w * scale), int(h * scale)),
+                    interpolation=cv2.INTER_AREA,
+                ),
+                scale,
+            )
+
+        try:
+            small, scale = _shrink(frame)
+            if boxes:
+                if scale != 1.0:
+                    scaled = [
+                        (x1 * scale, y1 * scale, x2 * scale, y2 * scale, sc, lab)
+                        for (x1, y1, x2, y2, sc, lab) in boxes
+                    ]
+                else:
+                    scaled = boxes
+                return self._draw_boxes(small.copy(), scaled)
+            if annotated is not None:
+                out, _ = _shrink(annotated)
+                return out
+            return small.copy()
+        except Exception as exc:  # noqa: BLE001
+            self.get_logger().warn(
+                f"Failed to prepare annotated debug image for '{cam}': {exc}"
+            )
+            return None
+
+    def _write_annotated(self, cam: str, annotated: np.ndarray) -> str:
+        """Write one annotated JPEG; returns filename or empty string."""
+        try:
+            import cv2
+        except Exception as exc:  # noqa: BLE001
+            self.get_logger().warn(f"Could not import cv2 to save debug images: {exc}")
+            return ""
+
+        stamp = datetime.now().strftime("%Y%m%d_%H%M%S_%f")[:-3]
+        ann_path = self._debug_dir / f"detect_{cam}_{stamp}_annotated.jpg"
+        jpeg_params = [int(cv2.IMWRITE_JPEG_QUALITY), 80]
+
+        try:
+            self._debug_dir.mkdir(parents=True, exist_ok=True)
+            if cv2.imwrite(str(ann_path), annotated, jpeg_params):
+                return ann_path.name
+        except Exception as exc:  # noqa: BLE001
+            self.get_logger().warn(f"Failed to save annotated debug image: {exc}")
+        return ""
+
     def _save_debug_images(
         self,
         cam: str,
@@ -707,51 +862,14 @@ class VisionNode(Node):
         annotated: Optional[np.ndarray],
         boxes: List[Tuple[float, float, float, float, float, str]],
     ) -> str:
-        try:
-            import cv2
-        except Exception as exc:  # noqa: BLE001
-            self.get_logger().warn(f"Could not import cv2 to save debug images: {exc}")
+        """Legacy helper: prepare + write annotated only (no raw)."""
+        prepared = self._prepare_annotated(cam, frame, annotated, boxes)
+        if prepared is None:
             return ""
-
-        stamp = datetime.now().strftime("%Y%m%d_%H%M%S_%f")[:-3]
-        stem = f"detect_{cam}_{stamp}"
-        raw_path = self._debug_dir / f"{stem}_raw.jpg"
-        ann_path = self._debug_dir / f"{stem}_annotated.jpg"
-        saved: List[str] = []
-
-        try:
-            self._debug_dir.mkdir(parents=True, exist_ok=True)
-        except Exception as exc:  # noqa: BLE001
-            self.get_logger().warn(f"Failed to create debug dir: {exc}")
-            return ""
-
-        # Save raw first so we still get a frame if annotation fails.
-        try:
-            if cv2.imwrite(str(raw_path), frame):
-                saved.append(raw_path.name)
-        except Exception as exc:  # noqa: BLE001
-            self.get_logger().warn(f"Failed to save raw debug image: {exc}")
-
-        try:
-            # Always draw on CPU with OpenCV. Ultralytics results[0].plot() can
-            # allocate multi-GB GPU buffers for masks at full camera resolution.
-            # Prefer re-drawing from boxes so numeric ids always match the
-            # Detection2DArray; fall back to a pre-annotated frame if needed.
-            if boxes:
-                out = self._draw_boxes(frame.copy(), boxes)
-            elif annotated is not None:
-                out = annotated
-            else:
-                out = frame.copy()
-            if cv2.imwrite(str(ann_path), out):
-                saved.append(ann_path.name)
-        except Exception as exc:  # noqa: BLE001
-            self.get_logger().warn(f"Failed to save annotated debug image: {exc}")
-
-        if not saved:
-            return ""
-        self.get_logger().info(f"Saved debug images: {', '.join(saved)}")
-        return " + ".join(saved)
+        if boxes:
+            with self._debug_buf_lock:
+                self._debug_buf[cam] = prepared
+        return self._write_annotated(cam, prepared)
 
 
 def main(args=None):

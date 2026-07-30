@@ -1,0 +1,7 @@
+# Write the most recent buffered annotated debug images to disk.
+# vision_node buffers on each /vision/detect; call this after a detect was used.
+string[] cameras  # empty = all cameras that have a buffered frame
+---
+bool success
+string message
+string[] saved

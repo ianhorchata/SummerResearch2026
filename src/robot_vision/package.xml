@@ -20,6 +20,7 @@
   <exec_depend>robot_interfaces</exec_depend>
   <exec_depend>robot_arm</exec_depend>
   <exec_depend>irobot_create_msgs</exec_depend>
+  <exec_depend>python3-scipy</exec_depend>
   <!-- python3-opencv is pulled in by cv_bridge; Ultralytics (pip: ultralytics)
        is not packaged for rosdep and must be installed on the Jetson manually.
        FastSAM weights (FastSAM-s.pt) download on first use. For a zero-download

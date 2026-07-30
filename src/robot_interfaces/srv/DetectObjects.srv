@@ -1,6 +1,10 @@
 # Request: grab the latest frame from one camera and run object detection on it.
 string  camera            # which camera to use: "left" or "right"
 float32 confidence        # min confidence 0.0-1.0; <= 0 uses the node's default
+# If true (and node save_debug_images:=true), write annotated JPEG now.
+# Otherwise the annotated frame is only buffered; call PersistDebugImages
+# after you decide this detect was used. Raw frames are never saved.
+bool    save_debug
 ---
 # Response
 bool    success

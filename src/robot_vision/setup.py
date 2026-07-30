@@ -28,6 +28,7 @@ setup(
             "vision_node = robot_vision.vision_node:main",
             "ground_pose_node = robot_vision.ground_pose_node:main",
             "drive_to_object = robot_vision.drive_to_object:main",
+            "sweep_and_pick = robot_vision.sweep_and_pick:main",
         ],
     },
 )

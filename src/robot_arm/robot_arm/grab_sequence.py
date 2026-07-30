@@ -136,7 +136,13 @@ def run_grab_sequence(
     move(["Servo1", "Servo2", "Servo3", "Servo4"], grab, "1/4 grab pose")
     move(["Servo4"], [float(gripper_closed_rad)], "2/4 close gripper")
     move(["Servo1", "Servo2", "Servo3"], drop, "3/4 drop pose")
+    # Close/drop often browns out the servo bus; MoveJoints returns success as
+    # soon as the command is queued, so a single open can leave jaws shut.
+    # Pause briefly for voltage recovery, then open twice.
+    time.sleep(0.5)
     move(["Servo4"], [float(gripper_open_rad)], "4/4 open gripper")
+    time.sleep(0.3)
+    move(["Servo4"], [float(gripper_open_rad)], "4/4 open gripper (retry)")
     log.info("grab sequence done")
 
 

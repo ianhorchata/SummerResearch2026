@@ -10,9 +10,12 @@ CSI cameras are published with gscam2 using the Jetson Argus source
 Stereo camera poses (inches relative to base_link, converted to meters below):
   left  (CAD cam 2): X=1.467, Y=+5.185, Z=4.0, yaw toe-in -10 deg
   right (CAD cam 1): X=1.467, Y=-5.185, Z=4.0, yaw toe-in +10 deg
+  pitch: ROS camera_link pitch (negative = look down). Default 0.0 deg;
+         retune with camera_pitch_deg:=... after a tape-measure check.
 
     ros2 launch robot_bringup robot.launch.py
     ros2 launch robot_bringup robot.launch.py width:=3280 height:=2464 fps:=21
+    ros2 launch robot_bringup robot.launch.py camera_pitch_deg:=-10.0
     ros2 launch robot_bringup robot.launch.py vision:=false   # skip vision node
     ros2 launch robot_bringup robot.launch.py model:=FastSAM-s.pt
     ros2 launch robot_bringup robot.launch.py backend:=yolo model:=yolov8n.pt
@@ -55,19 +58,27 @@ def _static_tf(x, y, z, roll, pitch, yaw, parent, child):
     )
 
 
-def _camera_tfs():
-    """base_link -> *_camera_link -> *_camera_optical_frame (matches gscam frame_id)."""
+def _camera_tfs(pitch_rad: float = math.radians(-8.0)):
+    """base_link -> *_camera_link -> *_camera_optical_frame (matches gscam frame_id).
+
+    ``pitch_rad`` is ROS camera_link pitch (about +Y): negative looks down.
+    """
     ox, oy, oz = _OPTICAL_RPY
     return [
-        _static_tf(_CAM_X, _CAM_Y, _CAM_Z, 0.0, 0.0, -_TOE_IN,
+        _static_tf(_CAM_X, _CAM_Y, _CAM_Z, 0.0, pitch_rad, -_TOE_IN,
                    "base_link", "left_camera_link"),
-        _static_tf(_CAM_X, -_CAM_Y, _CAM_Z, 0.0, 0.0, _TOE_IN,
+        _static_tf(_CAM_X, -_CAM_Y, _CAM_Z, 0.0, pitch_rad, _TOE_IN,
                    "base_link", "right_camera_link"),
         _static_tf(0.0, 0.0, 0.0, ox, oy, oz,
                    "left_camera_link", "left_camera_optical_frame"),
         _static_tf(0.0, 0.0, 0.0, ox, oy, oz,
                    "right_camera_link", "right_camera_optical_frame"),
     ]
+
+
+def _spawn_camera_tfs(context, *_args, **_kwargs):
+    pitch_deg = float(LaunchConfiguration("camera_pitch_deg").perform(context))
+    return _camera_tfs(math.radians(pitch_deg))
 
 
 def _csi_pipeline(sensor_id, width, height, fps):
@@ -134,6 +145,14 @@ def generate_launch_description():
         DeclareLaunchArgument("height", default_value="720"),
         DeclareLaunchArgument("fps", default_value="30"),
         DeclareLaunchArgument("port", default_value="/dev/ttyACM0"),
+        DeclareLaunchArgument(
+            "camera_pitch_deg",
+            default_value="-2.0",
+            description=(
+                "ROS camera_link pitch in degrees (negative = look down). "
+                "Tune until a known floor range matches mono/stereo poses."
+            ),
+        ),
         DeclareLaunchArgument("vision", default_value="true",
                               description="start the vision detection node"),
         DeclareLaunchArgument(
@@ -152,7 +171,7 @@ def generate_launch_description():
             launch_arguments={"port": port}.items(),
         ),
 
-        *(_camera_tfs()),
+        OpaqueFunction(function=_spawn_camera_tfs),
         OpaqueFunction(function=_spawn_cameras),
 
         IncludeLaunchDescription(

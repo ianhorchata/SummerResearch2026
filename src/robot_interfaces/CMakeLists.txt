@@ -17,6 +17,7 @@ rosidl_generate_interfaces(${PROJECT_NAME}
   "srv/DetectObjects.srv"
   "srv/DetectObjectPose.srv"
   "srv/DetectObjectPoses.srv"
+  "srv/PersistDebugImages.srv"
   DEPENDENCIES std_msgs geometry_msgs vision_msgs
 )
 

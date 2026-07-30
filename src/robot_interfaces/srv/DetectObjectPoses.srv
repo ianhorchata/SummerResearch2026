@@ -1,19 +1,22 @@
 # Project all detections onto the ground plane (returned in numeric ID order).
 #
-# When stereo is true, run /vision/detect on left and right, project both to
-# target_frame for association, keep only objects whose L/R ground poses agree
-# within match_tol_m, then triangulate 3D pose from L/R bbox centroids using
-# camera intrinsics + TF (ray midpoint). Ordering follows left camera IDs.
+# When stereo is true, run /vision/detect on left and right, associate boxes
+# (default: epipolar + optional appearance; or ground-XY within match_tol_m),
+# then triangulate 3D pose from L/R bbox pixels using camera intrinsics + TF
+# (ray midpoint). Ordering follows left camera IDs.
 #
 # widths_m / heights_m are apparent bbox size in meters at the estimated depth
 # (same order as poses): size_m = size_px * Z_optical / f.
+# match_costs are stereo association costs (epipolar+appearance+size; nan in
+# ground-mode). Optionally, only return poses whose bbox-bottom contact_z is
+# near the ground.
 
-bool    stereo              # true = left+right agreement + stereo triangulate
+bool    stereo              # true = left+right association + stereo triangulate
 string  camera              # used when stereo=false; ignored when stereo=true
 float32 confidence          # <= 0 uses vision_node default
 string  target_frame        # empty -> node default (usually base_link)
 float32 ground_z            # plane height in target_frame (usually 0)
-float32 match_tol_m         # max L/R pose distance to accept; <=0 -> node default
+float32 match_tol_m         # ground-mode max L/R XY distance; <=0 -> node default
 ---
 bool success
 string message
@@ -22,5 +25,6 @@ vision_msgs/Detection2DArray detections        # primary (left) boxes, same orde
 float32[] widths_m                             # apparent bbox width (m), same order
 float32[] heights_m                            # apparent bbox height (m), same order
 float32[] match_errors_m                       # L/R ground-pose XY distance (stereo)
+float32[] match_costs                          # stereo association cost (epipolar+app+size)
 vision_msgs/Detection2DArray left_detections   # full left result (debug)
 vision_msgs/Detection2DArray right_detections  # full right result (stereo only)

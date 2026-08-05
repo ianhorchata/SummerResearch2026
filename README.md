@@ -1,7 +1,8 @@
-# Create 3 + Jetson Orin Nano robot (ROS 2 Jazzy)
+# Lafayette College Summer Research 2026
+## Create3 + Jetson Orin Nano Object Detection and Pickup
 
-ROS 2 workspace integrating an iRobot Create 3, a Hiwonder LX serial-bus servo
-arm, and two CSI cameras on an NVIDIA Jetson Orin Nano.
+This research project was made possible and supervised by Professor Yu.
+The goal of this project was to develop a mobile base and vision system capable of recognizing and picking up small objects. The project utilizes iRobot's [Create3](https://iroboteducation.github.io/create3_docs/) for the mobile base, a [Jetson Orin Nano](https://www.nvidia.com/en-us/autonomous-machines/embedded-systems/jetson-orin/nano-super-developer-kit/) as the compute board, and a custom made 3d printed arm.
 
 ## What's here
 

@@ -31,7 +31,7 @@ ros2_ws/
 Clone camera deps into `src/` (not checked in): `gscam2` and `ros2_shared` — see setup below.
 `sim/create3_sim` (iRobot Gazebo stack) is intentionally not in this repo yet.
 
-The Create3 runs it's own ROS2 nodes. For more information on the what topics and services the Create3 provides please see the Create3 [API documentation](https://iroboteducation.github.io/create3_docs/api/ros2/). The Create3 and the Jetson communicate over a virtual ethernet USB-C link. The Jetson and the Create3 must both use fastDDS and have the same ROS_DOMAIN_ID for UDP to succeed.
+The Create3 runs its own ROS2 nodes. For more information on what topics and services the Create3 provides, please see the Create3 [API documentation](https://iroboteducation.github.io/create3_docs/api/ros2/). The Create3 and the Jetson communicate over a virtual Ethernet USB-C link. The Jetson and the Create3 must both use fastDDS and have the same ROS_DOMAIN_ID for UDP to succeed.
 
 ## The ROS 2 graph
 
@@ -131,16 +131,33 @@ ros2 service call /vision/detect robot_interfaces/srv/DetectObjects \
 
 ## Object detection (`robot_vision`)
 
-`vision_node` runs detection **on request only** (a service), because inference
-is expensive and you rarely want it on every frame. It subscribes to `/left/image_raw` and
+`vision_node` runs detection as a service, because inference
+is expensive and you rarely want it on every frame. The vision node subscribes to `/left/image_raw` and
 `/right/image_raw`, caches the newest frame from each, and runs a YOLO model on
-that frame when `/vision/detect` is called. The response is a
-`vision_msgs/Detection2DArray` (labels + confidences + pixel bounding boxes).
+that frame when `/vision/detect` is called. The default model is FastSAM segment everything. The response is a
+`vision_msgs/Detection2DArray`; each bounding box has a label and a confidence score. 
 
 By default each successful detect also writes two JPEGs under
 `~/ros2_ws/vision_debug/`:
 `detect_<cam>_<timestamp>_raw.jpg` and `..._annotated.jpg` (boxes drawn).
-Disable with `save_debug_images:=false`.
+
+<table>
+  <tr>
+    <th><b>Left Camera</b></th>
+    <th><b>Right Camera</b></th>
+  </tr>
+  <tr>
+    <td><img src="https://github.com/user-attachments/assets/9772c9ce-bc85-4fa0-9db5-2cc5ef401246" width="100%" alt="Left Camera"></td>
+    <td><img src="https://github.com/user-attachments/assets/7e4f8eed-344c-4401-b417-1b6daf9d11e2" width="100%" alt="Right Camera"></td>
+  </tr>
+</table>
+
+The main challenge for stereoscopic vision is finding the same object in both camera images. Once done, stereoscopic vision allows for depth perception and can accurately determine the size and location of an object. Objects were initially matched based on ground-pose estimation. However, this proved unreliable. Instead, objects were matched based on epipolar geometry. A real object match must satisfy the epipolar constraint ```p_R^T·F·p_L = 0```, where F is built from the calibrated camera intrinsics. For each object in the left image, take the bottom center of the bounding box and compute the epicenter line: ```Line = p_L@F''' and then compute the perpendicular distance from the right pixel to that line. If the two boxes depict the same 3d point, the distance should be near zero, but since there is inherent variance in how bounding boxes are drawn around the objects, an error of less than 40 pixels is tolerated. Sometimes epipolar geometry can agree even if it's not the same 3d objects. To filter against this, we assign a penalty for mismatched size/aspect ratio of the bounding box, and mismatched appearance. However, the appearance penalty is often faulty when there is glare in the image.
+
+The naive approach of matching the closest right object per left object fails when there are multiple close right objects, and can lead to incorrect assignment. To solve this, we build a cost matrix of all possible left and right matches, and run a linear sum algorithm to determine the best overall matches. This is reliably able to filter out noise and find which real-world objects are matched.
+
+From here, distance and size can be found. Objects that are larger than a threshold are filtered out.
+
 
 ```bash
 # cameras must be publishing first (robot.launch.py does this):

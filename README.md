@@ -134,12 +134,8 @@ ros2 service call /vision/detect robot_interfaces/srv/DetectObjects \
 `vision_node` runs detection as a service, because inference
 is expensive and you rarely want it on every frame. The vision node subscribes to `/left/image_raw` and
 `/right/image_raw`, caches the newest frame from each, and runs a YOLO model on
-that frame when `/vision/detect` is called. The default model is FastSAM segment everything. The response is a
-`vision_msgs/Detection2DArray`; each bounding box has a label and a confidence score. 
-
-By default each successful detect also writes two JPEGs under
-`~/ros2_ws/vision_debug/`:
-`detect_<cam>_<timestamp>_raw.jpg` and `..._annotated.jpg` (boxes drawn).
+that frame when `/vision/detect` is called. The default model is FastSAM to segment the image into objects. The response is a
+`vision_msgs/Detection2DArray`; each bounding box has a label and a confidence score. The FastSAM algorithm has a lot of noise, and extensive filtering is required to determine what the real grabbable objects are in the frame. 
 
 <table>
   <tr>
@@ -156,8 +152,7 @@ The main challenge for stereoscopic vision is finding the same object in both ca
 
 The naive approach of matching the closest right object per left object fails when there are multiple close right objects, and can lead to incorrect assignment. To solve this, we build a cost matrix of all possible left and right matches, and run a linear sum algorithm to determine the best overall matches. This is reliably able to filter out noise and find which real-world objects are matched.
 
-From here, distance and size can be found. Objects that are larger than a threshold are filtered out.
-
+After successful matching, a 3D pose can be obtained by triangulation. An apparent size can be estimated based on the size of the bounding box and the distance of the object. Objects larger than a set threshold, further away than allowed, or not on the ground, can then be filtered out, leaving only valid grab candidates.
 
 ```bash
 # cameras must be publishing first (robot.launch.py does this):
@@ -170,8 +165,7 @@ ros2 launch robot_vision vision.launch.py save_debug_images:=false
   at your own `.pt`, or — for real speed on the Jetson — export a TensorRT
   engine (`yolo export model=best.pt format=engine`) and pass the `.engine`.
 - **GPU:** set `device:=cuda:0` to force the Jetson GPU.
-- **Latency:** the service call blocks until inference finishes. If you later
-  need progress/cancel or run heavier models, switch it to a ROS 2 action.
+- **Latency:** the service call blocks until inference finishes.
 
 ## Notes
 

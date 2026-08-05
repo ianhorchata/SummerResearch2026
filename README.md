@@ -2,7 +2,15 @@
 ## Create3 + Jetson Orin Nano Object Detection and Pickup
 
 This research project was made possible and supervised by Professor Yu.
-The goal of this project was to develop a mobile base and vision system capable of recognizing and picking up small objects. The project utilizes iRobot's [Create3](https://iroboteducation.github.io/create3_docs/) for the mobile base, a [Jetson Orin Nano](https://www.nvidia.com/en-us/autonomous-machines/embedded-systems/jetson-orin/nano-super-developer-kit/) as the compute board, and a custom made 3d printed arm.
+The goal of this project was to develop a mobile base and vision system capable of recognizing and picking up small objects. The project utilizes iRobot's [Create3](https://iroboteducation.github.io/create3_docs/) for the mobile base, a [Jetson Orin Nano](https://www.nvidia.com/en-us/autonomous-machines/embedded-systems/jetson-orin/nano-super-developer-kit/) as the compute board, a custom-made 3D-printed arm, and a 3d printed basket for items to be dropped into.
+
+<img width="5712" height="4284" alt="IMG_0010" src="https://github.com/user-attachments/assets/5d74d311-ccb2-4ba8-81e6-0607e5221b99" />
+
+## Hardware
+
+The project has a [Create3](https://iroboteducation.github.io/create3_docs/). The Create3 has a 26Wh battery capable of delivering a nominal 14.4 volts at a maximum of 2 amps, for ~28 watts of power. This is enough to power the Jetson compute board, which draws ~25W of power. The arm was initially designed with normal PWM servos in mind. However, these servos are open-loop, require three wires each, and would not be accurate enough for this project. Instead, the arm uses four [LX-224 Serial Bus Servos](https://www.amazon.com/LewanSoul-Connectors-Equipped-Position-Temperature/dp/B0817X3Z3W). These servos use a UART half-duplex serial bus to communicate with the Jetson via the BusLinkerV3 board. The servos broadcast their position with 0.24 degree resolution, allowing for accurate closed-loop control. The BusLinker board can support up to 253 servos on the same bus, more than enough to control the four servos used on the arm. The servos run at 6-8.4volts and draw upwards of 3 amps at stall, for a theoretical maximum of 33.6 watts of power. While the servos will rarely be operated at stall simultaneously, serious power draw will occur when all four servos are moving simultaneously. This is too much power for the Create3 to provide on top of the Jetson demands. Therefore, the arm requires a dedicated battery for power. The battery is a two-cell 52000mAh 50c LiPo. As a two-cell, it has a nominal voltage of 7.4 volts and at 50c can output more than 200amps of power, way more than the servos need. (Pro tip: when replacing the battery connector, do not cut both terminals of the battery at once. That will cause a short through the wire stripper and will blow it up. Ask me how I know)
+
+The vision system uses two IMX Arducam 219 8MP cameras for stereoscopic vision. The camera placement was chosen to allow for a nearly unobstructed view of the ideal grabbing area. In retrospect, giving the cameras a higher vantage point would have been beneficial. 
 
 ## What's here
 
@@ -23,9 +31,7 @@ ros2_ws/
 Clone camera deps into `src/` (not checked in): `gscam2` and `ros2_shared` — see setup below.
 `sim/create3_sim` (iRobot Gazebo stack) is intentionally not in this repo yet.
 
-The **Create 3 is not in this workspace** on purpose — it runs ROS 2 itself and
-publishes its topics over the Jetson<->Create network. You just consume them
-(`/odom`, `/battery_state`, `/imu`, `/cmd_vel`, ...).
+The Create3 runs it's own ROS2 nodes. For more information on the what topics and services the Create3 provides please see the Create3 [API documentation](https://iroboteducation.github.io/create3_docs/api/ros2/). The Create3 and the Jetson communicate over a virtual ethernet USB-C link. The Jetson and the Create3 must both use fastDDS and have the same ROS_DOMAIN_ID for UDP to succeed.
 
 ## The ROS 2 graph
 
@@ -126,9 +132,7 @@ ros2 service call /vision/detect robot_interfaces/srv/DetectObjects \
 ## Object detection (`robot_vision`)
 
 `vision_node` runs detection **on request only** (a service), because inference
-is expensive and you rarely want it on every frame. It does **not** open the
-cameras — gscam2 already owns them, and the Jetson Argus source allows one
-consumer per sensor. Instead it subscribes to `/left/image_raw` and
+is expensive and you rarely want it on every frame. It subscribes to `/left/image_raw` and
 `/right/image_raw`, caches the newest frame from each, and runs a YOLO model on
 that frame when `/vision/detect` is called. The response is a
 `vision_msgs/Detection2DArray` (labels + confidences + pixel bounding boxes).
@@ -221,10 +225,3 @@ std_srvs/srv/Trigger` and by jogging one servo at a time.
 > Note: the URDF currently models only one revolute joint (`Revolute 14`) plus
 > fixed supports. As you add the remaining arm joints in Fusion/xacro, add a
 > matching `joint_name_map` entry for each.
-
-## Suggested next steps
-
-1. Add `robot_state_publisher` + a URDF so RViz shows the arm + base together.
-2. Add a teleop node that maps a joystick to `/cmd_vel` (drive) and
-   `/arm/joint_command` (arm).
-3. Calibrate the cameras and feed `camera_info` for stereo depth.

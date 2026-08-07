@@ -12,6 +12,12 @@ The project has a [Create3](https://iroboteducation.github.io/create3_docs/). Th
 
 The vision system uses two IMX Arducam 219 8MP cameras for stereoscopic vision. The camera placement was chosen to allow for a nearly unobstructed view of the ideal grabbing area. In retrospect, giving the cameras a higher vantage point would have been beneficial. 
 
+## Design Considerations
+
+The camera's FOV was modelled as a rectangular pyramid to show what the camera would see. In SolidWorks, you can add a camera to a model and literally see through the camera's viewpoint; however, as far as I know, Fusion lacks that capability. The camera positions were chosen to fit within Create3's frame without obstruction. The camera's FOV overlap about 10 inches in front of the Create3, which defines the minimum distance the arm should be when it grabs an object, as the object must be visible in both cameras for stereo vision to function. In retrospect, positioning the camera higher would give a better vantage point and make scale easier to determine.
+
+The arm uses four LX-224 servos. These servos have a rated torque of 20 kg $$\cdot$$ cm. In my experience, servo torque is almost always less than advertised. A better number is likely 10-15 kg $$\cdot$$ cm. The highest moment occurs on the shoulder joint when the arm is fully extended horizontally. To grab objects in range of the cameras, each section of arm needed to be ~5 inches. This corresponds to a moment of 10.8 kg $$\cdot$$ cm. Initial testing using a DC power supply proved worrisome, but when powered by the battery, the arm had more than enough torque. 
+
 ## What's here
 
 ```

@@ -199,73 +199,18 @@ The node begins by undocking the create3, and defining the carpet coordinates. I
 
 <img width="1853" height="1048" alt="Screenshot from 2026-07-16 16-15-07" src="https://github.com/user-attachments/assets/ebaebb87-5bb2-4737-9ae6-9e1e797eacaa" />
 
+To simulate the robot, an accurate URDF model must be obtained from the CAD file. I used [fusion2urdf](https://github.com/newtonjeri/fusion2urdf-master) to achieve this. However, fusion2urdf does not handle nested joints correctly, so I had to redo most of my CAD work to be in the correct format to export correctly. Once exported I could use RVIZ to see model of the live robot. This required ROS communication between my host computer, the Jetson, and the Create3. This proved to be the most difficult part of the entire project. I initially used CycloneDDS, however that failed so I switched to FastDDS and ran a discovery server on the Jetson with the host computer as a super client. 
 
-## Notes
+The iRobot team has implemented the [Create3 in Gazebo Sim](https://github.com/iRobotEducation/create3_sim), all I needed to do was add my URDF models on top to the existing implemented Gazebo sim. This proved immensely challenging, and as of now is not functionally as I would like it. More time is needed to figure out the issues I am experiencing. 
 
-- **Units:** `joint_states` / `joint_command` use **radians** (ROS convention,
-  so this plugs into `robot_state_publisher`, RViz, MoveIt later). The
-  `move_joints` service uses **degrees** for convenience. The underlying servos
-  are 0–1000 units = 0–240°.
-- **Single serial bus:** the node runs single-threaded on purpose so position
-  reads and commands never collide on the half-duplex bus.
-- **Camera sensor-id:** `robot.launch.py` maps CSI slot 0 -> `/left`, slot 1 ->
-  `/right`. Swap the `0`/`1` in `_spawn_cameras` if they come out reversed.
-- **DDS across machines:** make sure the Jetson and any host use the same
-  `ROS_DOMAIN_ID` and are on the same subnet to see each other's topics.
+## Challenges
 
-## Visualizing the arm in RViz
+This project proved immensely difficult. It would not have been possible without the resources and support from Professor Yu. 
 
-`create3_description` holds the URDF (Fusion 360 export) and a display launch.
-Three nodes cooperate: `robot_state_publisher` (URDF -> TF), a joint-state
-source, and `rviz2`.
+The Create3 battery refused to charge initially. I believe the battery had fully died so the battery management system that regulates charging could not function. This  was fixed by directly connecting a DC power supply to the battery, positive to positive, and negative to negative. After a few seconds of this, the battery charged normally.
 
-**Step 1 — see the model + move it with sliders (no hardware needed):**
+ROS2 requires a Linux machine. To get around this I was initially using everything through WSL2. This proved annoying, but functional up until I had to flash the Jetson. For whatever reason, the Jetson refused to flash over WSL, or any other method. I had no choice but to dual boot Linux. This required partitioning a portion of my hard drive for Linux, which Windows refused to allow despite having enough empty space. I used EaseUS partition manager to partition the correct space and then had to mess around with my BIOS for the Linux boot option to become available. The computer I am using has a NVIDIA GPU, which did not play well with Linux, and I had issues with crashing, overheating, and a strange moment where my trackpad and WiFi stopped working entirely. 
 
-```bash
-colcon build --symlink-install && source install/setup.bash
-ros2 launch create3_description display.launch.py        # use_gui:=true (default)
-```
+The fusion2urdf program requires CAD to be in a very specific format. Each part can only have one parent, and any nested components are treated as one part. This required a complete reformatting of my CAD base, which was frustrating.
 
-RViz opens with the robot model; a slider window lets you drive each movable
-joint. This confirms the URDF, meshes, and TF tree are correct.
-
-**Step 2 — drive the model from the live arm:**
-
-```bash
-# terminal A: the arm (publishes /arm/joint_states)
-ros2 launch robot_arm arm.launch.py
-# terminal B: RViz fed by the live arm
-ros2 launch create3_description display.launch.py use_gui:=false
-```
-
-In `use_gui:=false` mode a plain `joint_state_publisher` merges
-`/arm/joint_states` and defaults every other joint (wheels, etc.) to 0.
-
-### Matching servo ids to URDF joint names (required for Step 2)
-
-The URDF joints have Fusion-generated names with spaces (e.g. `Revolute 14`),
-but `arm_node` publishes `servo_<id>` by default — they won't line up until you
-map them with the `joint_name_map` parameter:
-
-```
-"<id>:<joint name>[:<center_units>[:<sign>]]"
-  center_units : servo position (0-1000) that equals the URDF joint's zero pose
-                 (defaults to 500, the servo midpoint)
-  sign         : +1 or -1, flip if the model rotates the wrong way
-```
-
-Example — servo id 1 is `Revolute 14`, centered, reversed:
-
-```bash
-ros2 run robot_arm arm_node --ros-args \
-  -p "joint_name_map:=['1:Revolute 14:500:-1']"
-```
-
-Tip to calibrate: launch Step 2, watch the model, then tweak `sign` (direction)
-and `center_units` (offset) until the on-screen arm matches the real one. Find
-which servo id is which joint with `ros2 service call /arm/scan
-std_srvs/srv/Trigger` and by jogging one servo at a time.
-
-> Note: the URDF currently models only one revolute joint (`Revolute 14`) plus
-> fixed supports. As you add the remaining arm joints in Fusion/xacro, add a
-> matching `joint_name_map` entry for each.
+This project was my first introduction to ROS2, and internet protocol communication. The majority of troubleshooting was spent attempting to get my host computer, the Jetson, and the Create3 to function on the same ROS graph. This was made worse when I changed locations and had to switch WiFi networks. In the end FastDDS with a discovery server proved successful, but only after I changed the ROS_DOMAIN_ID from 0, to 1. For whatever reason my IDE uses the same UDP port as ROS uses by default. This was fixed by changed the ROS ID to use a free UDP port.

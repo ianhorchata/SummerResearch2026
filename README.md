@@ -6,11 +6,33 @@ The goal of this project was to develop a mobile base and vision system capable 
 
 <img width="5712" height="4284" alt="IMG_0010" src="https://github.com/user-attachments/assets/5d74d311-ccb2-4ba8-81e6-0607e5221b99" />
 
+## Table of Contents
+**Demo & hardware**
+- [Videos](#videos)
+- [Hardware](#hardware)
+- [Design Considerations](#design-considerations)
+**Software & setup**
+- [What's here](#whats-here)
+- [The ROS 2 graph](#the-ros-2-graph)
+- [One-time setup (on the Jetson)](#one-time-setup-on-the-jetson)
+- [Build](#build)
+- [Run](#run)
+- [Try it](#try-it)
+**Autonomy**
+- [Object detection (`robot_vision`)](#object-detection-robot_vision)
+- [Autonomous Pickup](#autonomous-pickup)
+- [Sweep and Pick](#sweep-and-pick)
+**Other**
+- [Simulation / Visualization](#simulation--visualization)
+- [Challenges](#challenges)
+
 ## Videos
 
 [![Create3 Succesful Grab](https://img.youtube.com/vi/UcSSc0AryHc/0.jpg)](https://www.youtube.com/watch?v=UcSSc0AryHc)
 
 [![Create3 Succesful Sweep](https://img.youtube.com/vi/dUKRa-kdFyE/0.jpg)](https://www.youtube.com/watch?v=dUKRa-kdFyE)
+
+
 
 ## Hardware
 

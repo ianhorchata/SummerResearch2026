@@ -179,6 +179,27 @@ ros2 launch robot_vision vision.launch.py save_debug_images:=false
 - **GPU:** set `device:=cuda:0` to force the Jetson GPU.
 - **Latency:** the service call blocks until inference finishes.
 
+## Autonomous Pickup
+
+Given an arbitrary object somewhere in front of the robot, the Create3 must be able to find it reliably, drive to a fixed standoff distance, face the object, solve the joint angles from the 3D pose, and grab the object. 
+
+One of the largest limitations of the grab sequence is motion blur. The Create3 vibrates too much for usable images to be captured while driving. Therefore we must wait for the Create3 to settle before capturing a new image. Then we run the vision node which finds objects, their size, and 3D pose. This process is not perfect however, and can identify noise, complex furniture, or completely miss an object. Therefore we cannot trust a single frame, so instead we require a multi-frame consensus. We run three detections spaced briefly apart and only go after objects that are in the roughly the same area each frame. 
+
+Then the closest candidate object's pose is sent to Create3's NavigateToPosition action to drive the Create3 to a standoff ~15 inches on front of the Create3. After driving, detection is run again, and the updated pose must be within ~0.4m of the previous estimate. This prevents hopping from object to object. If at the standoff distance and aligned within 0.03 radians, the arm will proceed to drive. If not, the updated pose is sent to NavigateToPosition. Once within tolerance, the Jetson computes the joint angles for planar IK from the 3D pose, creeps forward slightly if the object is too far away, and performs the grab sequence, dropping the object in the basket.
+
+Afterwards, run detection is run again to determine of the grab was successful. 
+
+## Sweep and Pick
+
+The sweep and pick node runs an autonomous coverage mission over a rectangular area, in this case a section of carpet. To imitate how this could be used on a real Roomba, the Create3 drives in a lawn mower pattern, stopping at regular intervals to scan, and picks up objects when it finds them. It then returns to the same node.
+
+The node begins by undocking the create3, and defining the carpet coordinates. It generates the boustrophedon path as a series of waypoints. For each waypoint, it navigates to position, runs the scan loop, picks up the object if found, then advances to the next waypoint. After the last waypoint, the Create3 redocks.
+
+## Simulation / Visualization
+
+<img width="1853" height="1048" alt="Screenshot from 2026-07-16 16-15-07" src="https://github.com/user-attachments/assets/ebaebb87-5bb2-4737-9ae6-9e1e797eacaa" />
+
+
 ## Notes
 
 - **Units:** `joint_states` / `joint_command` use **radians** (ROS convention,
